@@ -1,41 +1,36 @@
 import Link from "next/link";
 import { Logo } from "@/components/brand/logo";
 import { LinkButton } from "@/components/ui/link-button";
-import { cn } from "@/lib/utils";
-import type { BrandId } from "@/lib/brands";
 import { PRACTICE } from "@/lib/site-data";
+import { Phone } from "lucide-react";
 
-interface NavItem {
-  label: string;
-  href: string;
-}
+const NAV = [
+  { label: "About", href: "/about" },
+  { label: "Membership", href: "/membership" },
+  { label: "Weight Loss", href: "/weight-loss" },
+  { label: "Contact", href: "/contact" },
+];
 
-interface HeaderProps {
-  brand: BrandId;
-  nav: NavItem[];
-  ctaLabel: string;
-  ctaHref: string;
-}
-
-export function Header({ brand, nav, ctaLabel, ctaHref }: HeaderProps) {
+export function Header() {
   return (
-    <header className="sticky top-0 z-40 w-full border-b border-border/60 bg-background/80 backdrop-blur">
-      <div className="mx-auto flex h-16 w-full max-w-6xl items-center justify-between px-5 sm:px-8">
+    <header className="sticky top-0 z-40 w-full border-b border-border/60 bg-background/85 backdrop-blur">
+      <div className="mx-auto flex h-20 w-full max-w-6xl items-center justify-between px-5 sm:px-8">
         <Link
           href="/"
           className="inline-flex items-center transition-opacity hover:opacity-80"
         >
-          <Logo brand={brand} />
+          <Logo height={44} />
         </Link>
 
-        <nav className="hidden items-center gap-7 md:flex">
-          {nav.map((item) => (
+        <nav
+          aria-label="Primary"
+          className="hidden items-center gap-8 md:flex"
+        >
+          {NAV.map((item) => (
             <Link
               key={item.href}
               href={item.href}
-              className={cn(
-                "text-sm font-medium text-muted-foreground transition-colors hover:text-foreground",
-              )}
+              className="text-sm font-medium text-foreground/70 transition-colors hover:text-foreground"
             >
               {item.label}
             </Link>
@@ -45,12 +40,13 @@ export function Header({ brand, nav, ctaLabel, ctaHref }: HeaderProps) {
         <div className="flex items-center gap-3">
           <a
             href={PRACTICE.phoneHref}
-            className="hidden font-mono text-sm text-muted-foreground transition-colors hover:text-foreground lg:inline"
+            className="hidden items-center gap-1.5 font-mono text-sm text-muted-foreground transition-colors hover:text-foreground lg:inline-flex"
           >
+            <Phone className="h-3.5 w-3.5" />
             {PRACTICE.phone}
           </a>
-          <LinkButton href={ctaHref} size="sm">
-            {ctaLabel}
+          <LinkButton href="/contact" size="sm">
+            Book a Meet &amp; Greet
           </LinkButton>
         </div>
       </div>

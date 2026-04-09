@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
-import { Hero } from "@/components/marketing/hero";
+import Image from "next/image";
+import { PageHeader } from "@/components/marketing/page-header";
 import { Section } from "@/components/marketing/section";
 import { ContactForm } from "@/components/marketing/contact-form";
 import { Phone, Mail, MapPin, Clock } from "lucide-react";
@@ -11,12 +12,16 @@ export const metadata: Metadata = {
   description: DPC_CONTACT.hero.subtitle,
 };
 
-export default function DpcContactPage() {
+export default function ContactPage() {
   return (
     <>
-      <Hero
+      <PageHeader
         eyebrow={DPC_CONTACT.hero.eyebrow}
-        title={DPC_CONTACT.hero.title}
+        title={
+          <>
+            Get in <span className="text-brand-accent">touch.</span>
+          </>
+        }
         subtitle={DPC_CONTACT.hero.subtitle}
       />
 
@@ -28,7 +33,7 @@ export default function DpcContactPage() {
 
           <aside className="space-y-6">
             <div className="rounded-2xl border border-border/70 bg-surface p-6">
-              <h3 className="text-sm font-semibold uppercase tracking-[0.14em] text-muted-foreground">
+              <h3 className="text-sm font-semibold uppercase tracking-[0.14em] text-brand-accent">
                 Contact info
               </h3>
               <ul className="mt-5 space-y-4 text-sm">
@@ -68,7 +73,7 @@ export default function DpcContactPage() {
             </div>
 
             <div className="rounded-2xl border border-border/70 bg-surface p-6">
-              <h3 className="flex items-center gap-2 text-sm font-semibold uppercase tracking-[0.14em] text-muted-foreground">
+              <h3 className="flex items-center gap-2 text-sm font-semibold uppercase tracking-[0.14em] text-brand-accent">
                 <Clock className="h-4 w-4" /> Office hours
               </h3>
               <div className="mt-5">
@@ -103,6 +108,29 @@ export default function DpcContactPage() {
               </div>
             </div>
           </aside>
+        </div>
+      </Section>
+
+      <Section className="pb-20 md:pb-24">
+        <div className="grid gap-4 sm:grid-cols-2">
+          <div className="relative aspect-[16/10] overflow-hidden rounded-3xl">
+            <Image
+              src="/assets/FrontDoorOutsideWide.jpg"
+              alt="Entrance to Fort Wayne Direct Primary Care"
+              fill
+              sizes="(max-width: 768px) 100vw, 50vw"
+              className="object-cover"
+            />
+          </div>
+          <div className="relative aspect-[16/10] overflow-hidden rounded-3xl">
+            <Image
+              src="/assets/FrontSignLogoOutsideWide.jpg"
+              alt="Fort Wayne Direct Primary Care exterior signage"
+              fill
+              sizes="(max-width: 768px) 100vw, 50vw"
+              className="object-cover"
+            />
+          </div>
         </div>
       </Section>
     </>

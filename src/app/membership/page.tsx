@@ -1,10 +1,13 @@
 import type { Metadata } from "next";
-import { Hero } from "@/components/marketing/hero";
+import Image from "next/image";
+import { PageHeader } from "@/components/marketing/page-header";
 import { Section, Eyebrow } from "@/components/marketing/section";
+import { CampaignCallout } from "@/components/marketing/campaign-callout";
 import { LinkButton } from "@/components/ui/link-button";
 import { Check } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { DPC_MEMBERSHIP } from "@/lib/dpc-content";
+import { CALLOUTS } from "@/lib/campaigns";
 
 export const metadata: Metadata = {
   title: "Membership & Pricing",
@@ -12,12 +15,16 @@ export const metadata: Metadata = {
     "Direct primary care membership pricing for individuals, families, and students. One flat monthly fee, no insurance.",
 };
 
-export default function DpcMembershipPage() {
+export default function MembershipPage() {
   return (
     <>
-      <Hero
+      <PageHeader
         eyebrow={DPC_MEMBERSHIP.hero.eyebrow}
-        title={DPC_MEMBERSHIP.hero.title}
+        title={
+          <>
+            Membership <span className="text-brand-accent">pricing.</span>
+          </>
+        }
         subtitle={DPC_MEMBERSHIP.hero.subtitle}
         primaryCta={{ label: "Schedule a Meet & Greet", href: "/contact" }}
       />
@@ -40,7 +47,7 @@ export default function DpcMembershipPage() {
                     {tier.name}
                   </h3>
                   {tier.featured && (
-                    <span className="rounded-full bg-brand/10 px-2.5 py-1 font-mono text-[10px] font-semibold uppercase tracking-[0.14em] text-brand">
+                    <span className="rounded-full bg-brand-accent/15 px-2.5 py-1 font-mono text-[10px] font-semibold uppercase tracking-[0.14em] text-brand-accent">
                       Most popular
                     </span>
                   )}
@@ -74,7 +81,7 @@ export default function DpcMembershipPage() {
               <ul className="mt-6 flex-1 space-y-2.5 text-sm">
                 {tier.includes.map((inc) => (
                   <li key={inc} className="flex items-start gap-2.5">
-                    <Check className="mt-0.5 h-4 w-4 shrink-0 text-brand" />
+                    <Check className="mt-0.5 h-4 w-4 shrink-0 text-brand-accent" />
                     <span className="text-foreground/85">{inc}</span>
                   </li>
                 ))}
@@ -98,6 +105,59 @@ export default function DpcMembershipPage() {
       </Section>
 
       <Section className="py-20">
+        <div className="grid items-center gap-10 md:grid-cols-[1fr_1.2fr]">
+          <div className="relative aspect-[4/5] overflow-hidden rounded-3xl">
+            <Image
+              src="/assets/MAlePatientonPatientBedSittingUpVertical.jpg"
+              alt="A patient sitting up on an exam-room bed at Fort Wayne Direct Primary Care"
+              fill
+              sizes="(max-width: 768px) 100vw, 45vw"
+              className="object-cover"
+            />
+          </div>
+          <div>
+            <Eyebrow>In-office care</Eyebrow>
+            <h2 className="mt-4 text-3xl font-semibold tracking-tight sm:text-4xl">
+              Most of what you need, under one roof.
+            </h2>
+            <p className="mt-4 text-muted-foreground">
+              Point-of-care testing, simple in-office procedures, and the
+              time to actually sit and talk through what&rsquo;s going on.
+              You&rsquo;ll rarely feel shuffled through — because you
+              aren&rsquo;t.
+            </p>
+
+            {/* Eye check PNG — transparent cutout beside the wellness callout */}
+            <div className="mt-8 flex items-center gap-5 rounded-2xl border border-border/70 bg-surface p-5">
+              <div className="relative h-24 w-24 shrink-0">
+                <Image
+                  src="/assets/DoctorEyeCheckNoBakgroundPNG.png"
+                  alt="Dr. Aluri performing a vision check"
+                  fill
+                  sizes="96px"
+                  className="object-contain"
+                />
+              </div>
+              <div>
+                <div className="font-mono text-[11px] font-semibold uppercase tracking-[0.16em] text-brand-accent">
+                  Wellness exams
+                </div>
+                <p className="mt-1 text-sm leading-6 text-foreground/85">
+                  Every annual check includes a full physical, vision
+                  check, and a conversation about what&rsquo;s actually on
+                  your mind — not a rushed 15-minute slot.
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </Section>
+
+      <Section className="py-20 md:py-24">
+        <CampaignCallout {...CALLOUTS.noCopays} align="center" />
+      </Section>
+
+      <Section className="py-16">
         <div className="mb-10 max-w-2xl">
           <Eyebrow>À la carte services</Eyebrow>
           <h2 className="mt-4 text-3xl font-semibold tracking-tight sm:text-4xl">

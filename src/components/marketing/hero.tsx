@@ -1,3 +1,4 @@
+import Image from "next/image";
 import { LinkButton } from "@/components/ui/link-button";
 import { Eyebrow } from "@/components/marketing/section";
 import { ArrowRight } from "lucide-react";
@@ -9,12 +10,18 @@ interface CtaLink {
 
 interface HeroProps {
   eyebrow: string;
-  title: string;
+  title: React.ReactNode;
   subtitle: string;
   primaryCta?: CtaLink;
   secondaryCta?: CtaLink;
 }
 
+/**
+ * Homepage hero with the no-background doctor-and-patient PNG on the
+ * right. The PNG sits inside a deep-blue brand blob that bleeds
+ * intentionally off the grid to keep the composition asymmetric and
+ * "editorial" rather than flat marketing.
+ */
 export function Hero({
   eyebrow,
   title,
@@ -24,23 +31,20 @@ export function Hero({
 }: HeroProps) {
   return (
     <section className="relative overflow-hidden">
-      {/* Background wash — subtle brand tint, no stock photo. */}
+      {/* soft warm background wash */}
       <div
         aria-hidden
-        className="absolute inset-0 -z-10 bg-gradient-to-b from-brand-muted/60 via-background to-background"
-      />
-      <div
-        aria-hidden
-        className="absolute inset-x-0 top-0 -z-10 h-[420px] bg-[radial-gradient(ellipse_at_top,var(--brand-muted)_0%,transparent_55%)] opacity-70"
+        className="absolute inset-0 -z-10 bg-gradient-to-b from-brand-muted/30 via-background to-background"
       />
 
-      <div className="mx-auto grid w-full max-w-6xl items-center gap-12 px-5 pb-20 pt-20 sm:px-8 md:grid-cols-[1.3fr_1fr] md:pt-28 md:pb-28">
+      <div className="relative mx-auto grid w-full max-w-6xl items-center gap-8 px-5 pt-20 pb-12 sm:px-8 md:grid-cols-[1.15fr_1fr] md:pt-28 md:pb-20">
+        {/* copy column */}
         <div className="max-w-2xl">
           <Eyebrow>{eyebrow}</Eyebrow>
-          <h1 className="mt-5 text-4xl font-semibold leading-[1.05] tracking-[-0.035em] text-foreground sm:text-5xl md:text-6xl">
+          <h1 className="mt-5 text-4xl font-semibold leading-[1.02] tracking-[-0.035em] text-foreground sm:text-5xl md:text-[64px] md:leading-[1.02]">
             {title}
           </h1>
-          <p className="mt-6 max-w-xl text-lg leading-7 text-muted-foreground">
+          <p className="mt-6 max-w-xl text-base leading-7 text-muted-foreground md:text-lg">
             {subtitle}
           </p>
 
@@ -63,31 +67,38 @@ export function Hero({
               )}
             </div>
           )}
+
+          <dl className="mt-12 grid max-w-lg grid-cols-3 gap-6 border-t border-border/60 pt-8">
+            <Stat label="Years in practice" value="20+" />
+            <Stat label="Board certifications" value="2" />
+            <Stat label="Insurance required" value="None" />
+          </dl>
         </div>
 
-        {/* Right-side decorative block — typographic, no stock photo. */}
-        <div className="relative hidden md:block">
-          <div className="absolute inset-0 -z-10 rounded-3xl bg-brand/5 blur-2xl" />
-          <div className="relative rounded-3xl border border-border/70 bg-surface p-8 shadow-sm">
-            <div className="flex items-center gap-2 font-mono text-[11px] uppercase tracking-[0.18em] text-muted-foreground">
-              <span className="inline-block h-1.5 w-1.5 rounded-full bg-brand" />
-              Fort Wayne, Indiana
-            </div>
-            <p className="mt-6 font-sans text-2xl font-medium leading-tight tracking-tight text-foreground">
-              &ldquo;Primary care should feel like having a doctor in the family
-              &mdash; not a ten-minute appointment at the end of a fourteen-person
-              waiting room.&rdquo;
-            </p>
-            <p className="mt-6 text-sm text-muted-foreground">
-              &mdash; Dr. Kalyan Aluri, MD
-            </p>
+        {/* photo column */}
+        <div className="relative mx-auto w-full max-w-md md:max-w-none">
+          {/* brand blob background */}
+          <div
+            aria-hidden
+            className="absolute inset-x-4 top-6 bottom-4 -z-10 rounded-[38%_62%_48%_52%/_52%_36%_64%_48%] bg-brand"
+          />
+          <div
+            aria-hidden
+            className="absolute -left-8 -top-8 -z-10 h-24 w-24 rounded-full bg-brand-accent/20 blur-2xl md:h-32 md:w-32"
+          />
+          <div
+            aria-hidden
+            className="absolute bottom-0 right-6 -z-10 h-20 w-20 rounded-full bg-brand-accent/40 blur-2xl md:h-28 md:w-28"
+          />
 
-            <div className="mt-8 grid grid-cols-3 gap-4 border-t border-border/60 pt-6">
-              <Stat label="Years in practice" value="20+" />
-              <Stat label="Board certs" value="2" />
-              <Stat label="Panel cap" value="ltd." />
-            </div>
-          </div>
+          <Image
+            src="/assets/DoctorwithPatientNoBackground.png"
+            alt="Dr. Kalyan Aluri speaking with a patient at Fort Wayne Direct Primary Care"
+            width={900}
+            height={1100}
+            priority
+            className="relative mx-auto w-full max-w-md object-contain drop-shadow-[0_30px_50px_rgba(10,37,64,0.25)] md:max-w-none"
+          />
         </div>
       </div>
     </section>
@@ -97,12 +108,12 @@ export function Hero({
 function Stat({ label, value }: { label: string; value: string }) {
   return (
     <div>
-      <div className="font-mono text-xl font-semibold tabular-nums text-brand">
-        {value}
-      </div>
-      <div className="mt-1 text-[10px] font-medium uppercase tracking-[0.12em] text-muted-foreground">
+      <dt className="text-[10px] font-semibold uppercase tracking-[0.14em] text-muted-foreground">
         {label}
-      </div>
+      </dt>
+      <dd className="mt-1.5 font-mono text-2xl font-semibold tabular-nums text-brand">
+        {value}
+      </dd>
     </div>
   );
 }
