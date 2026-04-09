@@ -115,8 +115,8 @@ export default function ContactPage() {
         <div className="grid gap-4 sm:grid-cols-2">
           <div className="relative aspect-[16/10] overflow-hidden rounded-3xl">
             <Image
-              src="/assets/FrontDoorOutsideWide.jpg"
-              alt="Entrance to Fort Wayne Direct Primary Care"
+              src="/assets/FrontSignLogoOutsideWide.jpg"
+              alt="Fort Wayne Direct Primary Care exterior signage"
               fill
               sizes="(max-width: 768px) 100vw, 50vw"
               className="object-cover"
@@ -124,8 +124,8 @@ export default function ContactPage() {
           </div>
           <div className="relative aspect-[16/10] overflow-hidden rounded-3xl">
             <Image
-              src="/assets/FrontSignLogoOutsideWide.jpg"
-              alt="Fort Wayne Direct Primary Care exterior signage"
+              src="/assets/FrontDoorOutsideWide.jpg"
+              alt="Entrance to Fort Wayne Direct Primary Care"
               fill
               sizes="(max-width: 768px) 100vw, 50vw"
               className="object-cover"

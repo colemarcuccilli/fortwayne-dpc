@@ -17,10 +17,11 @@ interface HeroProps {
 }
 
 /**
- * Homepage hero with the no-background doctor-and-patient PNG on the
- * right. The PNG sits inside a deep-blue brand blob that bleeds
- * intentionally off the grid to keep the composition asymmetric and
- * "editorial" rather than flat marketing.
+ * Homepage hero. The no-background doctor-and-patient PNG is anchored to
+ * the bottom-right of the section so the figures appear to be standing on
+ * the base of the hero. A subtle dotted grid sits behind everything, and
+ * an SVG curve divider at the bottom transitions to the next section
+ * (matching the curved wave the live site already uses).
  */
 export function Hero({
   eyebrow,
@@ -30,16 +31,26 @@ export function Hero({
   secondaryCta,
 }: HeroProps) {
   return (
-    <section className="relative overflow-hidden">
-      {/* soft warm background wash */}
+    <section className="relative isolate overflow-hidden pt-16 md:pt-20">
+      {/* soft light-blue wash */}
       <div
         aria-hidden
-        className="absolute inset-0 -z-10 bg-gradient-to-b from-brand-muted/30 via-background to-background"
+        className="absolute inset-0 -z-20 bg-gradient-to-b from-brand-muted/80 via-background to-background"
+      />
+      {/* dotted grid texture */}
+      <div
+        aria-hidden
+        className="absolute inset-0 -z-10 opacity-[0.35] [background-image:radial-gradient(circle_at_1px_1px,rgba(43,108,176,0.35)_1px,transparent_0)] [background-size:22px_22px]"
+      />
+      {/* soft terracotta glow behind the doctor */}
+      <div
+        aria-hidden
+        className="absolute right-0 top-1/3 -z-10 h-[520px] w-[520px] -translate-y-1/4 translate-x-1/4 rounded-full bg-brand-accent/25 blur-3xl"
       />
 
-      <div className="relative mx-auto grid w-full max-w-6xl items-center gap-8 px-5 pt-20 pb-12 sm:px-8 md:grid-cols-[1.15fr_1fr] md:pt-28 md:pb-20">
-        {/* copy column */}
-        <div className="max-w-2xl">
+      <div className="relative mx-auto grid w-full max-w-6xl items-end gap-10 px-5 pb-0 sm:px-8 md:min-h-[640px] md:grid-cols-[1.25fr_1fr]">
+        {/* ---------- copy ---------- */}
+        <div className="max-w-2xl pb-20 md:pb-28">
           <Eyebrow>{eyebrow}</Eyebrow>
           <h1 className="mt-5 text-4xl font-semibold leading-[1.02] tracking-[-0.035em] text-foreground sm:text-5xl md:text-[64px] md:leading-[1.02]">
             {title}
@@ -75,32 +86,31 @@ export function Hero({
           </dl>
         </div>
 
-        {/* photo column */}
-        <div className="relative mx-auto w-full max-w-md md:max-w-none">
-          {/* brand blob background */}
-          <div
-            aria-hidden
-            className="absolute inset-x-4 top-6 bottom-4 -z-10 rounded-[38%_62%_48%_52%/_52%_36%_64%_48%] bg-brand"
-          />
-          <div
-            aria-hidden
-            className="absolute -left-8 -top-8 -z-10 h-24 w-24 rounded-full bg-brand-accent/20 blur-2xl md:h-32 md:w-32"
-          />
-          <div
-            aria-hidden
-            className="absolute bottom-0 right-6 -z-10 h-20 w-20 rounded-full bg-brand-accent/40 blur-2xl md:h-28 md:w-28"
-          />
-
+        {/* ---------- doctor PNG, anchored bottom-right ---------- */}
+        <div className="relative h-[420px] w-full self-end sm:h-[540px] md:h-[640px]">
           <Image
             src="/assets/DoctorwithPatientNoBackground.png"
-            alt="Dr. Kalyan Aluri speaking with a patient at Fort Wayne Direct Primary Care"
-            width={900}
-            height={1100}
+            alt="Dr. Kalyan Aluri listening to a patient's heart at Fort Wayne Direct Primary Care"
+            fill
             priority
-            className="relative mx-auto w-full max-w-md object-contain drop-shadow-[0_30px_50px_rgba(10,37,64,0.25)] md:max-w-none"
+            sizes="(max-width: 768px) 90vw, 45vw"
+            className="object-contain object-bottom drop-shadow-[0_30px_60px_rgba(10,37,64,0.25)]"
           />
         </div>
       </div>
+
+      {/* ---------- curve divider ---------- */}
+      <svg
+        aria-hidden
+        className="block h-12 w-full text-background md:h-16"
+        viewBox="0 0 1440 80"
+        preserveAspectRatio="none"
+      >
+        <path
+          d="M0,0 C360,80 1080,80 1440,0 L1440,80 L0,80 Z"
+          fill="currentColor"
+        />
+      </svg>
     </section>
   );
 }

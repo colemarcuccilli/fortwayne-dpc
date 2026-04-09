@@ -126,29 +126,56 @@ export default function MembershipPage() {
               You&rsquo;ll rarely feel shuffled through — because you
               aren&rsquo;t.
             </p>
+          </div>
+        </div>
+      </Section>
 
-            {/* Eye check PNG — transparent cutout beside the wellness callout */}
-            <div className="mt-8 flex items-center gap-5 rounded-2xl border border-border/70 bg-surface p-5">
-              <div className="relative h-24 w-24 shrink-0">
-                <Image
-                  src="/assets/DoctorEyeCheckNoBakgroundPNG.png"
-                  alt="Dr. Aluri performing a vision check"
-                  fill
-                  sizes="96px"
-                  className="object-contain"
-                />
-              </div>
-              <div>
-                <div className="font-mono text-[11px] font-semibold uppercase tracking-[0.16em] text-brand-accent">
-                  Wellness exams
-                </div>
-                <p className="mt-1 text-sm leading-6 text-foreground/85">
-                  Every annual check includes a full physical, vision
-                  check, and a conversation about what&rsquo;s actually on
-                  your mind — not a rushed 15-minute slot.
-                </p>
-              </div>
-            </div>
+      {/* ---------- Dedicated Wellness Exam section with the big eye-check PNG ---------- */}
+      <Section className="py-16 md:py-20">
+        <div className="relative grid items-center gap-10 overflow-hidden rounded-3xl bg-brand-muted p-8 md:grid-cols-[1fr_1.15fr] md:p-14">
+          <div
+            aria-hidden
+            className="absolute -right-20 -top-20 h-72 w-72 rounded-full bg-brand-accent/25 blur-3xl"
+          />
+
+          {/* The eye-check PNG gets real estate this time */}
+          <div className="relative h-80 md:h-[520px]">
+            <Image
+              src="/assets/DoctorEyeCheckNoBakgroundPNG.png"
+              alt="Dr. Aluri performing a vision check"
+              fill
+              sizes="(max-width: 768px) 90vw, 45vw"
+              className="object-contain object-bottom drop-shadow-[0_30px_60px_rgba(10,37,64,0.18)]"
+            />
+          </div>
+
+          <div className="relative">
+            <Eyebrow>Wellness exams</Eyebrow>
+            <h2 className="mt-4 text-3xl font-semibold tracking-tight text-foreground sm:text-4xl md:text-5xl">
+              Annual checks that
+              <br />
+              actually <span className="text-brand-accent">check.</span>
+            </h2>
+            <p className="mt-5 max-w-md text-base leading-7 text-foreground/85">
+              The 15-minute well visit is a myth we don&rsquo;t perpetuate.
+              Your annual exam is unhurried and covers what actually
+              matters.
+            </p>
+            <ul className="mt-8 space-y-3 text-sm">
+              {[
+                "Full head-to-toe physical",
+                "Vision & hearing screen",
+                "Cardiovascular and metabolic check-in",
+                "Skin screen for concerning lesions",
+                "Mental health check-in — not an afterthought",
+                "Personalized preventative plan for the year ahead",
+              ].map((item) => (
+                <li key={item} className="flex items-start gap-2.5">
+                  <span className="mt-1.5 inline-block h-1.5 w-1.5 shrink-0 rounded-full bg-brand-accent" />
+                  <span className="text-foreground/85">{item}</span>
+                </li>
+              ))}
+            </ul>
           </div>
         </div>
       </Section>

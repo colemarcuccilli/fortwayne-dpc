@@ -6,9 +6,10 @@
 
 /* --------------------------------------------------------------
    Brand palette — Fort Wayne Direct Primary Care
-   - Deep blue (#0a2540) primary
+   - Medium royal blue (#2b6cb0) dominant
+   - Dark navy (#0a2540) secondary / gravitas
    - Warm terracotta (#ab7663) accent
-   - Black ink for body copy, charcoal for secondary
+   - Black ink + charcoal secondary text
 ----------------------------------------------------------------*/
 @theme inline {
   --color-background: var(--background);
@@ -17,6 +18,7 @@
   --color-surface-muted: var(--surface-muted);
 
   --color-brand: var(--brand);
+  --color-brand-dark: var(--brand-dark);
   --color-brand-foreground: var(--brand-foreground);
   --color-brand-muted: var(--brand-muted);
   --color-brand-accent: var(--brand-accent);
@@ -68,7 +70,7 @@
   --popover: #ffffff;
   --popover-foreground: #0a0a0a;
 
-  --primary: #0a2540; /* deep blue */
+  --primary: #2b6cb0; /* medium royal blue — new dominant */
   --primary-foreground: #fbfaf7;
   --secondary: #f3f1ec;
   --secondary-foreground: #0a2540;
@@ -78,13 +80,14 @@
 
   --border: #e5e1d9;
   --input: #e5e1d9;
-  --ring: #0a2540;
+  --ring: #2b6cb0;
   --radius: 0.75rem;
 
   /* ---- Brand-specific tokens ---- */
-  --brand: #0a2540; /* deep blue */
+  --brand: #2b6cb0; /* light-medium royal blue (dominant) */
+  --brand-dark: #0a2540; /* deep navy (secondary) */
   --brand-foreground: #fbfaf7;
-  --brand-muted: #e8eef5; /* pale blue tint */
+  --brand-muted: #dde8f5; /* pale blue tint */
   --brand-accent: #ab7663; /* warm terracotta */
   --brand-accent-muted: #f5e9e3; /* pale terracotta */
 }

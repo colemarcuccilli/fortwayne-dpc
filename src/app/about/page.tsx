@@ -29,67 +29,86 @@ export default function AboutPage() {
         primaryCta={{ label: "Schedule a Meet & Greet", href: "/contact" }}
       />
 
+      {/* ---------- Meet your doctor — full-width story ---------- */}
       <Section className="py-20 md:py-24">
-        <div className="grid gap-14 md:grid-cols-[1.4fr_1fr]">
-          <article className="max-w-prose space-y-6 text-base leading-7 text-foreground/85">
-            <Eyebrow>Meet your doctor</Eyebrow>
-            <h2 className="mt-2 text-3xl font-semibold tracking-tight text-foreground sm:text-4xl">
-              Dr. Kalyan Aluri
-            </h2>
-            {DPC_ABOUT.story.map((paragraph) => (
-              <p key={paragraph.slice(0, 30)}>{paragraph}</p>
-            ))}
-          </article>
+        <div className="max-w-4xl">
+          <Eyebrow>Meet your doctor</Eyebrow>
+          <h2 className="mt-4 text-4xl font-semibold tracking-tight text-foreground sm:text-5xl md:text-6xl">
+            Dr. Kalyan Aluri
+          </h2>
+          <p className="mt-4 text-lg leading-7 text-muted-foreground">
+            Board-certified in Family Medicine and Obesity Medicine. More than
+            two decades of experience. Personal experience with everything he
+            helps his patients navigate.
+          </p>
+        </div>
 
-          <div className="space-y-6">
-            <div className="relative aspect-[4/5] overflow-hidden rounded-3xl">
-              <Image
-                src="/assets/DoctorSmilingatCameraVertical.jpg"
-                alt="Dr. Kalyan Aluri"
-                fill
-                sizes="(max-width: 768px) 100vw, 35vw"
-                className="object-cover"
-              />
-            </div>
+        <div className="mt-12 grid gap-10 md:grid-cols-2">
+          {DPC_ABOUT.story.map((paragraph) => (
+            <p
+              key={paragraph.slice(0, 30)}
+              className="text-base leading-7 text-foreground/85"
+            >
+              {paragraph}
+            </p>
+          ))}
+        </div>
+      </Section>
 
-            <div className="rounded-3xl border border-border/70 bg-surface p-6">
+      {/* ---------- Photo + WIDE credentials below ---------- */}
+      <Section className="pb-20 md:pb-24">
+        <div className="relative mx-auto aspect-[16/9] w-full overflow-hidden rounded-3xl md:aspect-[2.2/1]">
+          <Image
+            src="/assets/DoctorSmilingatCameraVertical.jpg"
+            alt="Dr. Kalyan Aluri"
+            fill
+            priority={false}
+            sizes="(max-width: 1152px) 100vw, 1152px"
+            className="object-cover object-top"
+          />
+        </div>
+
+        <div className="mt-10 rounded-3xl border border-border/70 bg-surface p-8 md:p-12">
+          <div className="grid gap-10 md:grid-cols-[minmax(220px,1fr)_1.2fr_1.2fr]">
+            <div>
               <div className="font-mono text-[11px] font-semibold uppercase tracking-[0.16em] text-brand-accent">
                 Credentials
               </div>
-              <h3 className="mt-3 text-base font-semibold text-foreground">
+              <h3 className="mt-3 text-2xl font-semibold tracking-tight text-foreground">
                 {PRACTICE.physician.name}
               </h3>
-              <p className="mt-1 text-sm text-muted-foreground">
+              <p className="mt-2 text-sm leading-6 text-muted-foreground">
                 {PRACTICE.physician.longTitle}
               </p>
+            </div>
 
-              <div className="mt-5 space-y-4 text-sm">
-                <div>
-                  <div className="text-[11px] font-semibold uppercase tracking-[0.16em] text-muted-foreground">
-                    Education
-                  </div>
-                  <ul className="mt-2 space-y-2 text-foreground/85">
-                    {PRACTICE.physician.education.map((e) => (
-                      <li key={e.degree}>
-                        <div className="font-medium">{e.degree}</div>
-                        <div className="text-xs text-muted-foreground">
-                          {e.school}
-                        </div>
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-                <div>
-                  <div className="text-[11px] font-semibold uppercase tracking-[0.16em] text-muted-foreground">
-                    Board certifications
-                  </div>
-                  <ul className="mt-2 space-y-1.5 text-foreground/85">
-                    {PRACTICE.physician.boards.map((b) => (
-                      <li key={b}>{b}</li>
-                    ))}
-                  </ul>
-                </div>
+            <div className="border-t border-border/60 pt-6 md:border-l md:border-t-0 md:pl-10 md:pt-0">
+              <div className="text-[11px] font-semibold uppercase tracking-[0.16em] text-muted-foreground">
+                Education
               </div>
+              <ul className="mt-4 space-y-4 text-sm">
+                {PRACTICE.physician.education.map((e) => (
+                  <li key={e.degree}>
+                    <div className="font-medium text-foreground">
+                      {e.degree}
+                    </div>
+                    <div className="text-muted-foreground">{e.school}</div>
+                  </li>
+                ))}
+              </ul>
+            </div>
+
+            <div className="border-t border-border/60 pt-6 md:border-l md:border-t-0 md:pl-10 md:pt-0">
+              <div className="text-[11px] font-semibold uppercase tracking-[0.16em] text-muted-foreground">
+                Board certifications
+              </div>
+              <ul className="mt-4 space-y-3 text-sm text-foreground/90">
+                {PRACTICE.physician.boards.map((b) => (
+                  <li key={b} className="leading-6">
+                    {b}
+                  </li>
+                ))}
+              </ul>
             </div>
           </div>
         </div>

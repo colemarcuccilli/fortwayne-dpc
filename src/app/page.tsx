@@ -152,34 +152,29 @@ export default function HomePage() {
 
       {/* ---- Community / location strip ---- */}
       <Section className="py-20">
+        <div className="mb-10 flex flex-wrap items-end justify-between gap-6">
+          <div className="max-w-xl">
+            <Eyebrow>Fort Wayne, Indiana</Eyebrow>
+            <h2 className="mt-4 text-3xl font-semibold leading-tight tracking-tight sm:text-4xl md:text-5xl">
+              Neighborhood care,
+              <br />
+              right here in Allen County.
+            </h2>
+          </div>
+          <p className="max-w-sm text-sm leading-6 text-muted-foreground sm:text-base">
+            We serve families across Fort Wayne and the surrounding
+            communities from our office on West Jefferson Boulevard.
+          </p>
+        </div>
         <div className="relative overflow-hidden rounded-3xl">
           <Image
             src="/assets/WideDroneShowinglocationandCloseAreasofTown.png"
             alt="Aerial view of Fort Wayne, Indiana"
             width={2400}
-            height={1000}
-            className="h-[320px] w-full object-cover sm:h-[420px]"
+            height={1400}
+            className="h-[520px] w-full object-cover md:h-[680px]"
+            priority={false}
           />
-          <div
-            aria-hidden
-            className="absolute inset-0 bg-gradient-to-r from-brand/85 via-brand/50 to-transparent"
-          />
-          <div className="absolute inset-0 flex items-center p-8 sm:p-14">
-            <div className="max-w-xl text-brand-foreground">
-              <span className="inline-block text-[11px] font-semibold uppercase tracking-[0.18em] text-brand-foreground/75">
-                Fort Wayne, Indiana
-              </span>
-              <h2 className="mt-3 text-3xl font-semibold leading-tight tracking-tight sm:text-4xl md:text-5xl">
-                Neighborhood care,
-                <br />
-                right here in Allen County.
-              </h2>
-              <p className="mt-4 max-w-md text-sm leading-6 text-brand-foreground/85 sm:text-base">
-                We serve families across Fort Wayne and the surrounding
-                communities from our office on West Jefferson Boulevard.
-              </p>
-            </div>
-          </div>
         </div>
       </Section>
 

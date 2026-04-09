@@ -14,12 +14,12 @@ const NAV = [
 export function Header() {
   return (
     <header className="sticky top-0 z-40 w-full border-b border-border/60 bg-background/85 backdrop-blur">
-      <div className="mx-auto flex h-20 w-full max-w-6xl items-center justify-between px-5 sm:px-8">
+      <div className="mx-auto flex h-24 w-full max-w-6xl items-center justify-between px-5 sm:px-8">
         <Link
           href="/"
           className="inline-flex items-center transition-opacity hover:opacity-80"
         >
-          <Logo height={44} />
+          <Logo height={68} />
         </Link>
 
         <nav
@@ -30,7 +30,7 @@ export function Header() {
             <Link
               key={item.href}
               href={item.href}
-              className="text-sm font-medium text-foreground/70 transition-colors hover:text-foreground"
+              className="text-sm font-medium text-foreground/70 transition-colors hover:text-brand"
             >
               {item.label}
             </Link>

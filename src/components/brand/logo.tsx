@@ -8,10 +8,11 @@ interface LogoProps {
 }
 
 /**
- * Real Fort Wayne DPC logo. The file lives at /public/assets and is
- * rendered as a fixed-height image — width auto-scales by intrinsic ratio.
+ * Real Fort Wayne DPC logo. The provided PNG has a lot of internal
+ * whitespace, so we render it at a larger height than the nominal bar
+ * height would suggest.
  */
-export function Logo({ className, height = 40 }: LogoProps) {
+export function Logo({ className, height = 56 }: LogoProps) {
   return (
     <span
       className={cn("inline-flex items-center", className)}
@@ -20,10 +21,10 @@ export function Logo({ className, height = 40 }: LogoProps) {
       <Image
         src="/assets/FortWayneDPCLogoPNG.png"
         alt="Fort Wayne Direct Primary Care"
-        width={Math.round(height * 2.8)}
+        width={Math.round(height * 3.2)}
         height={height}
         priority
-        className="h-auto w-auto object-contain"
+        className="object-contain"
         style={{ height, width: "auto" }}
       />
     </span>
