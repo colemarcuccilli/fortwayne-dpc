@@ -6,6 +6,7 @@ const NAV = [
   { label: "About", href: "/about" },
   { label: "Membership", href: "/membership" },
   { label: "Weight Loss & Aesthetics", href: "/weight-loss" },
+  { label: "Patient Form", href: "/patient-form" },
   { label: "Contact", href: "/contact" },
 ];
 

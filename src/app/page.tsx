@@ -31,7 +31,14 @@ export default function HomePage() {
         secondaryCta={DPC_HOME.hero.secondaryCta}
       />
 
-      <CampaignMarquee variant="dark" />
+      {/*
+        Marquee is pulled up with a negative margin so its solid dark
+        navy bar overlaps the bottom of the hero. That covers the hard
+        cut line at the base of the eye-exam PNG cutout.
+      */}
+      <div className="relative z-10 -mt-12 md:-mt-16">
+        <CampaignMarquee variant="dark" />
+      </div>
 
       {/* ---- Pillars ---- */}
       <Section className="py-20 md:py-28">

@@ -130,26 +130,43 @@ export default function MembershipPage() {
         </div>
       </Section>
 
-      {/* ---------- Dedicated Wellness Exam section with the big eye-check PNG ---------- */}
+      {/* ---------- Dedicated Wellness Exam section ----------
+           Uses the doctor-with-patient PNG. Because the PNG is a
+           background-less cutout with a hard edge at waist level, we
+           place a solid dark-navy "floor" stripe at the bottom of the
+           panel that covers the crop line. */}
       <Section className="py-16 md:py-20">
-        <div className="relative grid items-center gap-10 overflow-hidden rounded-3xl bg-brand-muted p-8 md:grid-cols-[1fr_1.15fr] md:p-14">
+        <div className="relative grid items-stretch gap-0 overflow-hidden rounded-3xl bg-brand-muted md:grid-cols-[1fr_1.15fr]">
           <div
             aria-hidden
-            className="absolute -right-20 -top-20 h-72 w-72 rounded-full bg-brand-accent/25 blur-3xl"
+            className="pointer-events-none absolute -right-20 -top-20 h-72 w-72 rounded-full bg-brand-accent/25 blur-3xl"
           />
 
-          {/* The eye-check PNG gets real estate this time */}
-          <div className="relative h-80 md:h-[520px]">
+          {/* Left: PNG with a brand-dark floor stripe hiding the crop */}
+          <div className="relative h-80 md:h-[560px]">
             <Image
-              src="/assets/DoctorEyeCheckNoBakgroundPNG.png"
-              alt="Dr. Aluri performing a vision check"
+              src="/assets/DoctorwithPatientNoBackground.png"
+              alt="Dr. Kalyan Aluri with a patient at Fort Wayne Direct Primary Care"
               fill
               sizes="(max-width: 768px) 90vw, 45vw"
               className="object-contain object-bottom drop-shadow-[0_30px_60px_rgba(10,37,64,0.18)]"
             />
+            {/* Floor stripe — covers the cutout's hard crop line */}
+            <div
+              aria-hidden
+              className="absolute inset-x-0 bottom-0 flex h-20 items-center justify-between bg-brand-dark px-6 text-brand-foreground md:h-24 md:px-10"
+            >
+              <span className="font-mono text-[10px] font-semibold uppercase tracking-[0.16em] text-brand-foreground/70">
+                Fort Wayne DPC
+              </span>
+              <span className="font-mono text-[10px] font-semibold uppercase tracking-[0.16em] text-brand-accent">
+                Wellness visit
+              </span>
+            </div>
           </div>
 
-          <div className="relative">
+          {/* Right: copy */}
+          <div className="relative p-8 md:p-14">
             <Eyebrow>Wellness exams</Eyebrow>
             <h2 className="mt-4 text-3xl font-semibold tracking-tight text-foreground sm:text-4xl md:text-5xl">
               Annual checks that
@@ -164,7 +181,7 @@ export default function MembershipPage() {
             <ul className="mt-8 space-y-3 text-sm">
               {[
                 "Full head-to-toe physical",
-                "Vision & hearing screen",
+                "Vision and hearing screen",
                 "Cardiovascular and metabolic check-in",
                 "Skin screen for concerning lesions",
                 "Mental health check-in — not an afterthought",

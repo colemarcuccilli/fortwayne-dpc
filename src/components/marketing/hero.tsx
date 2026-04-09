@@ -17,11 +17,10 @@ interface HeroProps {
 }
 
 /**
- * Homepage hero. The no-background doctor-and-patient PNG is anchored to
- * the bottom-right of the section so the figures appear to be standing on
- * the base of the hero. A subtle dotted grid sits behind everything, and
- * an SVG curve divider at the bottom transitions to the next section
- * (matching the curved wave the live site already uses).
+ * Homepage hero. Uses the no-background eye-exam PNG, anchored to the
+ * bottom-right of the section. The dark marquee that follows (in the
+ * page layout) pulls up with a negative margin to overlap the bottom of
+ * the PNG — which hides the hard cut line at the base of the cutout.
  */
 export function Hero({
   eyebrow,
@@ -48,9 +47,9 @@ export function Hero({
         className="absolute right-0 top-1/3 -z-10 h-[520px] w-[520px] -translate-y-1/4 translate-x-1/4 rounded-full bg-brand-accent/25 blur-3xl"
       />
 
-      <div className="relative mx-auto grid w-full max-w-6xl items-end gap-10 px-5 pb-0 sm:px-8 md:min-h-[640px] md:grid-cols-[1.25fr_1fr]">
+      <div className="relative mx-auto grid w-full max-w-6xl items-end gap-10 px-5 sm:px-8 md:min-h-[680px] md:grid-cols-[1.25fr_1fr]">
         {/* ---------- copy ---------- */}
-        <div className="max-w-2xl pb-20 md:pb-28">
+        <div className="max-w-2xl pb-24 md:pb-32">
           <Eyebrow>{eyebrow}</Eyebrow>
           <h1 className="mt-5 text-4xl font-semibold leading-[1.02] tracking-[-0.035em] text-foreground sm:text-5xl md:text-[64px] md:leading-[1.02]">
             {title}
@@ -86,11 +85,11 @@ export function Hero({
           </dl>
         </div>
 
-        {/* ---------- doctor PNG, anchored bottom-right ---------- */}
-        <div className="relative h-[420px] w-full self-end sm:h-[540px] md:h-[640px]">
+        {/* ---------- eye-exam PNG, anchored to the very bottom ---------- */}
+        <div className="relative h-[460px] w-full self-end sm:h-[580px] md:h-[680px]">
           <Image
-            src="/assets/DoctorwithPatientNoBackground.png"
-            alt="Dr. Kalyan Aluri listening to a patient's heart at Fort Wayne Direct Primary Care"
+            src="/assets/DoctorEyeCheckNoBakgroundPNG.png"
+            alt="Dr. Kalyan Aluri performing a vision check at Fort Wayne Direct Primary Care"
             fill
             priority
             sizes="(max-width: 768px) 90vw, 45vw"
@@ -98,19 +97,6 @@ export function Hero({
           />
         </div>
       </div>
-
-      {/* ---------- curve divider ---------- */}
-      <svg
-        aria-hidden
-        className="block h-12 w-full text-background md:h-16"
-        viewBox="0 0 1440 80"
-        preserveAspectRatio="none"
-      >
-        <path
-          d="M0,0 C360,80 1080,80 1440,0 L1440,80 L0,80 Z"
-          fill="currentColor"
-        />
-      </svg>
     </section>
   );
 }
