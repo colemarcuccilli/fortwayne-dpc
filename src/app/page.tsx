@@ -1,65 +1,101 @@
-import Image from "next/image";
+import Link from "next/link";
+import type { Metadata } from "next";
+import { ArrowUpRight } from "lucide-react";
+import { BRANDS } from "@/lib/brands";
 
-export default function Home() {
+export const metadata: Metadata = {
+  title: "Fort Wayne DPC + Indiana Weight Loss — Preview",
+  description:
+    "Preview environment for the Fort Wayne Direct Primary Care and Indiana Weight Loss & Aesthetics rebuild.",
+};
+
+/**
+ * Root landing page. On production, the proxy rewrites requests from
+ * fortwaynedpc.com and indianaloseweight.com straight to /dpc and /iwl,
+ * so this page is only reached from localhost or a Vercel preview URL.
+ * It acts as a brand picker for demos.
+ */
+export default function RootLandingPage() {
+  const cards = [
+    {
+      brand: BRANDS.dpc,
+      description:
+        "Primary care practice. Direct, unhurried, monthly membership — no insurance, no copays.",
+      href: "/dpc",
+      domain: "fortwaynedpc.com",
+    },
+    {
+      brand: BRANDS.iwl,
+      description:
+        "Physician-led weight loss, metabolic care, hormone optimization, and non-invasive aesthetics.",
+      href: "/iwl",
+      domain: "indianaloseweight.com",
+    },
+  ];
+
   return (
-    <div className="flex flex-col flex-1 items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex flex-1 w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the page.tsx file.
+    <div className="flex min-h-screen flex-col bg-background">
+      <header className="border-b border-border/60">
+        <div className="mx-auto flex w-full max-w-5xl items-center justify-between px-6 py-5">
+          <span className="font-mono text-[11px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
+            Preview environment
+          </span>
+          <span className="font-mono text-[11px] tabular-nums text-muted-foreground">
+            v0.1.0
+          </span>
+        </div>
+      </header>
+
+      <main className="mx-auto flex w-full max-w-5xl flex-1 flex-col justify-center px-6 py-20">
+        <div className="max-w-2xl">
+          <span className="inline-block text-xs font-semibold uppercase tracking-[0.18em] text-muted-foreground">
+            Two brands. One codebase. One deploy.
+          </span>
+          <h1 className="mt-4 text-4xl font-semibold leading-tight tracking-[-0.035em] text-foreground sm:text-5xl md:text-6xl">
+            Fort Wayne DPC +
+            <br />
+            Indiana Weight Loss.
           </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
+          <p className="mt-6 max-w-xl text-base leading-7 text-muted-foreground">
+            This is the demo build. Both sites live in one Next.js app and are
+            routed by hostname in production. Pick a brand below to preview the
+            full experience.
           </p>
         </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
+
+        <div className="mt-14 grid gap-4 md:grid-cols-2">
+          {cards.map(({ brand, description, href, domain }) => (
+            <Link
+              key={brand.id}
+              href={href}
+              className="group flex flex-col justify-between rounded-3xl border border-border/70 bg-surface p-8 transition-all hover:border-foreground/30 hover:shadow-sm"
+            >
+              <div>
+                <div className="font-mono text-[11px] font-semibold uppercase tracking-[0.16em] text-muted-foreground">
+                  {domain}
+                </div>
+                <h2 className="mt-4 text-2xl font-semibold leading-tight tracking-tight text-foreground">
+                  {brand.name}
+                </h2>
+                <p className="mt-3 text-sm leading-6 text-muted-foreground">
+                  {description}
+                </p>
+              </div>
+              <div className="mt-8 inline-flex items-center gap-1.5 text-sm font-medium text-foreground">
+                Open preview
+                <ArrowUpRight className="h-4 w-4 transition-transform group-hover:-translate-y-0.5 group-hover:translate-x-0.5" />
+              </div>
+            </Link>
+          ))}
         </div>
       </main>
+
+      <footer className="border-t border-border/60">
+        <div className="mx-auto flex w-full max-w-5xl items-center justify-between gap-4 px-6 py-5 font-mono text-[11px] text-muted-foreground">
+          <span>fortwayne-dpc / preview</span>
+          <span>cole marcuccilli</span>
+        </div>
+      </footer>
     </div>
   );
 }
