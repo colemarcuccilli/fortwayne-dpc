@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import { Header } from "@/components/brand/header";
 import { Footer } from "@/components/brand/footer";
+import { PromoBar } from "@/components/marketing/promo-bar";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -43,6 +44,7 @@ export default function RootLayout({
       className={`${geistSans.variable} ${geistMono.variable} h-full`}
     >
       <body className="flex min-h-full flex-col bg-background text-foreground">
+        <PromoBar />
         <Header />
         <main className="flex-1">{children}</main>
         <Footer />

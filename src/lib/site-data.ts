@@ -41,6 +41,8 @@ export const PRACTICE = {
   fax: "260-234-3295",
   email: "info@fortwaynedpc.com",
   emailHref: "mailto:info@fortwaynedpc.com",
+  aestheticsEmail: "aesthetics@fortwaynedpc.com",
+  aestheticsEmailHref: "mailto:aesthetics@fortwaynedpc.com",
   hours: {
     primaryCare: [
       { day: "Monday", open: "10:00 AM", close: "5:00 PM" },

@@ -111,6 +111,37 @@ export default function ContactPage() {
         </div>
       </Section>
 
+      {/* Aerial location graphic — annotated drone shot showing the
+          office in context (next to Jefferson Pointe, minutes from
+          downtown Fort Wayne). */}
+      <Section className="pb-12">
+        <div className="mb-8 flex flex-wrap items-end justify-between gap-4">
+          <div className="max-w-xl">
+            <span className="inline-block text-xs font-semibold uppercase tracking-[0.18em] text-brand">
+              Easy to find
+            </span>
+            <h2 className="mt-3 text-3xl font-semibold tracking-tight sm:text-4xl">
+              Right next to Jefferson Pointe.
+            </h2>
+          </div>
+          <p className="max-w-sm text-sm leading-6 text-muted-foreground">
+            Free parking out front. About 10 minutes from downtown Fort
+            Wayne and easy to reach from anywhere in Allen County.
+          </p>
+        </div>
+        <div className="relative overflow-hidden rounded-3xl">
+          <Image
+            src="/assets/LocationDroneGraphic.png"
+            alt="Aerial view of 4630 W Jefferson Blvd, Fort Wayne — between Jefferson Pointe and downtown"
+            width={2400}
+            height={1400}
+            className="h-[420px] w-full object-cover md:h-[600px]"
+            priority={false}
+          />
+        </div>
+      </Section>
+
+      {/* Building exterior shots */}
       <Section className="pb-20 md:pb-24">
         <div className="grid gap-4 sm:grid-cols-2">
           <div className="relative aspect-[16/10] overflow-hidden rounded-3xl">

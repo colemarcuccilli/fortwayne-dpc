@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
 import Image from "next/image";
 import { Hero } from "@/components/marketing/hero";
-import { CampaignMarquee } from "@/components/marketing/campaign-marquee";
 import { CampaignCallout } from "@/components/marketing/campaign-callout";
 import { CtaBanner } from "@/components/marketing/cta-banner";
 import { Section, Eyebrow } from "@/components/marketing/section";
@@ -31,14 +30,8 @@ export default function HomePage() {
         secondaryCta={DPC_HOME.hero.secondaryCta}
       />
 
-      {/*
-        Marquee is pulled up with a negative margin so its solid dark
-        navy bar overlaps the bottom of the hero. That covers the hard
-        cut line at the base of the eye-exam PNG cutout.
-      */}
-      <div className="relative z-10 -mt-12 md:-mt-16">
-        <CampaignMarquee variant="dark" />
-      </div>
+      {/* Marquee now lives inside the Hero component (absolute-positioned
+          at the bottom with z-20) so the PNG cannot leak past it. */}
 
       {/* ---- Pillars ---- */}
       <Section className="py-20 md:py-28">
@@ -175,8 +168,8 @@ export default function HomePage() {
         </div>
         <div className="relative overflow-hidden rounded-3xl">
           <Image
-            src="/assets/WideDroneShowinglocationandCloseAreasofTown.png"
-            alt="Aerial view of Fort Wayne, Indiana"
+            src="/assets/LocationDroneGraphic.png"
+            alt="Aerial view of 4630 W Jefferson Blvd, Fort Wayne — between Jefferson Pointe and downtown Fort Wayne"
             width={2400}
             height={1400}
             className="h-[520px] w-full object-cover md:h-[680px]"
@@ -190,8 +183,8 @@ export default function HomePage() {
         <div className="grid items-center gap-16 md:grid-cols-[1fr_1.3fr]">
           <div className="relative aspect-[4/5] overflow-hidden rounded-3xl bg-brand/5">
             <Image
-              src="/assets/DoctorSmilingwithMicandLabCoatVertical.jpg"
-              alt="Dr. Kalyan Aluri in his lab coat"
+              src="/assets/DoctorCheckinginsideMouthcloseupSquare.jpg"
+              alt="Dr. Aluri performing an exam"
               fill
               sizes="(max-width: 768px) 100vw, 40vw"
               className="object-cover"

@@ -5,7 +5,8 @@ import { PageHeader } from "@/components/marketing/page-header";
 import { Section, Eyebrow } from "@/components/marketing/section";
 import { CampaignCallout } from "@/components/marketing/campaign-callout";
 import { CtaBanner } from "@/components/marketing/cta-banner";
-import { Check } from "lucide-react";
+import { LinkButton } from "@/components/ui/link-button";
+import { ArrowRight, Check } from "lucide-react";
 import { DPC_WEIGHT_LOSS } from "@/lib/dpc-content";
 
 const EQUIPMENT = [
@@ -198,6 +199,59 @@ export default function WeightLossPage() {
               </Link>
             </div>
           ))}
+        </div>
+      </Section>
+
+      {/* ---------- Cross-promo: aesthetics / volume restoration ----
+           Bridges the weight-loss journey to the aesthetics page.
+           GLP-1 patients are the natural audience for facial volume
+           restoration — this gives them a soft handoff. */}
+      <Section className="py-16 md:py-20">
+        <div className="relative overflow-hidden rounded-3xl bg-brand-muted p-8 md:p-14">
+          <div
+            aria-hidden
+            className="pointer-events-none absolute -right-20 -top-20 h-64 w-64 rounded-full bg-brand-accent/25 blur-3xl"
+          />
+          <div className="relative grid gap-10 md:grid-cols-[1.1fr_1fr]">
+            <div>
+              <Eyebrow>The next chapter</Eyebrow>
+              <h2 className="mt-4 font-heading text-4xl font-semibold leading-[1.05] tracking-tight text-foreground sm:text-5xl">
+                Lost the weight?
+                <br />
+                <span className="text-brand-accent">
+                  Let&rsquo;s help your face catch up.
+                </span>
+              </h2>
+              <p className="mt-5 max-w-md text-base leading-7 text-foreground/85">
+                Rapid GLP-1 weight loss can leave the face looking gaunt or
+                older than it should. That&rsquo;s reversible. Our sister
+                aesthetic practice — same building, same physician oversight
+                — handles facial volume restoration designed specifically for
+                post-weight-loss patients.
+              </p>
+              <div className="mt-8">
+                <LinkButton href="/aesthetics" variant="brand" size="md">
+                  See the aesthetics program
+                  <ArrowRight className="h-4 w-4" />
+                </LinkButton>
+              </div>
+            </div>
+            <ul className="space-y-3.5 self-center text-sm">
+              {[
+                "Strategic, not overdone",
+                "Same office, same medical oversight",
+                "Painless filler technique (numb first)",
+                "Built for our weight-loss patients",
+              ].map((item) => (
+                <li key={item} className="flex items-start gap-3">
+                  <span className="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-brand/10 text-brand">
+                    <Check className="h-3 w-3" strokeWidth={3} />
+                  </span>
+                  <span className="text-foreground/90">{item}</span>
+                </li>
+              ))}
+            </ul>
+          </div>
         </div>
       </Section>
 

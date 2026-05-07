@@ -131,68 +131,78 @@ export default function MembershipPage() {
       </Section>
 
       {/* ---------- Dedicated Wellness Exam section ----------
-           Uses the doctor-with-patient PNG. Because the PNG is a
-           background-less cutout with a hard edge at waist level, we
-           place a solid dark-navy "floor" stripe at the bottom of the
-           panel that covers the crop line. */}
+           Outer panel + bottom stripe + inner grid. Putting the stripe
+           OUTSIDE the grid (as a sibling, absolute-positioned at the
+           bottom of the outer panel) lets it span the full panel width
+           — left photo column AND right copy column. The PNG sits in
+           the left column with extra bottom padding so its waist crop
+           ends up behind the stripe. */}
       <Section className="py-16 md:py-20">
-        <div className="relative grid items-stretch gap-0 overflow-hidden rounded-3xl bg-brand-muted md:grid-cols-[1fr_1.15fr]">
+        <div className="relative overflow-hidden rounded-3xl bg-brand-muted pb-16 md:pb-20">
           <div
             aria-hidden
             className="pointer-events-none absolute -right-20 -top-20 h-72 w-72 rounded-full bg-brand-accent/25 blur-3xl"
           />
 
-          {/* Left: PNG with a brand-dark floor stripe hiding the crop */}
-          <div className="relative h-80 md:h-[560px]">
-            <Image
-              src="/assets/DoctorwithPatientNoBackground.png"
-              alt="Dr. Kalyan Aluri with a patient at Fort Wayne Direct Primary Care"
-              fill
-              sizes="(max-width: 768px) 90vw, 45vw"
-              className="object-contain object-bottom drop-shadow-[0_30px_60px_rgba(10,37,64,0.18)]"
-            />
-            {/* Floor stripe — covers the cutout's hard crop line */}
-            <div
-              aria-hidden
-              className="absolute inset-x-0 bottom-0 flex h-20 items-center justify-between bg-brand-dark px-6 text-brand-foreground md:h-24 md:px-10"
-            >
-              <span className="font-mono text-[10px] font-semibold uppercase tracking-[0.16em] text-brand-foreground/70">
-                Fort Wayne DPC
-              </span>
-              <span className="font-mono text-[10px] font-semibold uppercase tracking-[0.16em] text-brand-accent">
-                Wellness visit
-              </span>
+          <div className="grid items-stretch gap-0 md:grid-cols-[0.9fr_1.1fr]">
+            {/* Left: PNG fills the column. The narrower column ratio
+                (0.9fr vs 1.1fr) lets object-contain scale the figures
+                larger so empty space doesn't dominate. Tiny top padding
+                only — bottom flush so the cutout's crop tucks behind
+                the dark stripe. */}
+            <div className="relative h-[400px] pt-3 md:h-[560px] md:pt-4">
+              <Image
+                src="/assets/DoctorwithPatientNoBackground.png"
+                alt="Dr. Kalyan Aluri with a patient at Fort Wayne Direct Primary Care"
+                fill
+                sizes="(max-width: 768px) 90vw, 45vw"
+                className="object-contain object-bottom drop-shadow-[0_30px_60px_rgba(10,37,64,0.18)]"
+              />
+            </div>
+
+            {/* Right: copy */}
+            <div className="relative p-8 md:p-12">
+              <Eyebrow>Wellness exams</Eyebrow>
+              <h2 className="mt-4 text-3xl font-semibold tracking-tight text-foreground sm:text-4xl md:text-5xl">
+                Annual checks that
+                <br />
+                actually <span className="text-brand-accent">check.</span>
+              </h2>
+              <p className="mt-5 max-w-md text-base leading-7 text-foreground/85">
+                The 15-minute well visit is a myth we don&rsquo;t
+                perpetuate. Your annual exam is unhurried and covers what
+                actually matters.
+              </p>
+              <ul className="mt-8 space-y-3 text-sm">
+                {[
+                  "Full head-to-toe physical",
+                  "Vision and hearing screen",
+                  "Cardiovascular and metabolic check-in",
+                  "Skin screen for concerning lesions",
+                  "Mental health check-in — not an afterthought",
+                  "Personalized preventative plan for the year ahead",
+                ].map((item) => (
+                  <li key={item} className="flex items-start gap-2.5">
+                    <span className="mt-1.5 inline-block h-1.5 w-1.5 shrink-0 rounded-full bg-brand-accent" />
+                    <span className="text-foreground/85">{item}</span>
+                  </li>
+                ))}
+              </ul>
             </div>
           </div>
 
-          {/* Right: copy */}
-          <div className="relative p-8 md:p-14">
-            <Eyebrow>Wellness exams</Eyebrow>
-            <h2 className="mt-4 text-3xl font-semibold tracking-tight text-foreground sm:text-4xl md:text-5xl">
-              Annual checks that
-              <br />
-              actually <span className="text-brand-accent">check.</span>
-            </h2>
-            <p className="mt-5 max-w-md text-base leading-7 text-foreground/85">
-              The 15-minute well visit is a myth we don&rsquo;t perpetuate.
-              Your annual exam is unhurried and covers what actually
-              matters.
-            </p>
-            <ul className="mt-8 space-y-3 text-sm">
-              {[
-                "Full head-to-toe physical",
-                "Vision and hearing screen",
-                "Cardiovascular and metabolic check-in",
-                "Skin screen for concerning lesions",
-                "Mental health check-in — not an afterthought",
-                "Personalized preventative plan for the year ahead",
-              ].map((item) => (
-                <li key={item} className="flex items-start gap-2.5">
-                  <span className="mt-1.5 inline-block h-1.5 w-1.5 shrink-0 rounded-full bg-brand-accent" />
-                  <span className="text-foreground/85">{item}</span>
-                </li>
-              ))}
-            </ul>
+          {/* Full-width brand-dark stripe across the bottom of the panel.
+              Hides the PNG cutout crop AND visually unifies both columns. */}
+          <div className="absolute inset-x-0 bottom-0 flex h-20 items-center justify-between bg-brand-dark px-6 text-brand-foreground md:h-24 md:px-10">
+            <span className="font-mono text-[10px] font-semibold uppercase tracking-[0.16em] text-brand-foreground/70 md:text-xs">
+              Fort Wayne DPC
+            </span>
+            <span className="hidden font-mono text-[10px] font-medium uppercase tracking-[0.16em] text-brand-foreground/60 sm:inline md:text-xs">
+              Annual wellness — included with every membership
+            </span>
+            <span className="font-mono text-[10px] font-semibold uppercase tracking-[0.16em] text-brand-accent md:text-xs">
+              Wellness visit
+            </span>
           </div>
         </div>
       </Section>

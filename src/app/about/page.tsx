@@ -55,16 +55,21 @@ export default function AboutPage() {
         </div>
       </Section>
 
-      {/* ---------- Photo + WIDE credentials below ---------- */}
+      {/* ---------- Photo + WIDE credentials below ----------
+           The source photo is portrait-orientation. Pairing it with a
+           portrait container (aspect-[4/5]) lets object-cover crop only
+           a sliver from the sides instead of slicing off everything
+           below the forehead. Constrained to max-w-md so it reads as a
+           "headshot" rather than a wall-spanning banner. */}
       <Section className="pb-20 md:pb-24">
-        <div className="relative mx-auto aspect-[16/9] w-full overflow-hidden rounded-3xl md:aspect-[2.2/1]">
+        <div className="relative mx-auto aspect-[4/5] w-full max-w-md overflow-hidden rounded-3xl">
           <Image
-            src="/assets/DoctorSmilingatCameraVertical.jpg"
+            src="/assets/DoctorSmilingwithMicandLabCoatVertical.jpg"
             alt="Dr. Kalyan Aluri"
             fill
             priority={false}
-            sizes="(max-width: 1152px) 100vw, 1152px"
-            className="object-cover object-top"
+            sizes="(max-width: 768px) 100vw, 28rem"
+            className="object-cover object-center"
           />
         </div>
 

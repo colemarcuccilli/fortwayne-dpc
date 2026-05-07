@@ -1,6 +1,7 @@
 import Image from "next/image";
 import { LinkButton } from "@/components/ui/link-button";
 import { Eyebrow } from "@/components/marketing/section";
+import { CampaignMarquee } from "@/components/marketing/campaign-marquee";
 import { ArrowRight } from "lucide-react";
 
 interface CtaLink {
@@ -17,10 +18,11 @@ interface HeroProps {
 }
 
 /**
- * Homepage hero. Uses the no-background eye-exam PNG, anchored to the
- * bottom-right of the section. The dark marquee that follows (in the
- * page layout) pulls up with a negative margin to overlap the bottom of
- * the PNG — which hides the hard cut line at the base of the cutout.
+ * Homepage hero with the eye-exam PNG anchored to the bottom-right of
+ * the section. The marquee is absolutely positioned at the bottom of
+ * the hero with z-20 so it sits ON TOP of the PNG — combined with the
+ * section's overflow-hidden, this guarantees nothing leaks below the
+ * marquee bar.
  */
 export function Hero({
   eyebrow,
@@ -47,9 +49,18 @@ export function Hero({
         className="absolute right-0 top-1/3 -z-10 h-[520px] w-[520px] -translate-y-1/4 translate-x-1/4 rounded-full bg-brand-accent/25 blur-3xl"
       />
 
-      <div className="relative mx-auto grid w-full max-w-6xl items-end gap-10 px-5 sm:px-8 md:min-h-[680px] md:grid-cols-[1.25fr_1fr]">
+      {/*
+        items-stretch (default, no items-* directive) makes both columns
+        fill the row height. Removing the grid's bottom padding lets the
+        photo column extend all the way to the section's bottom edge —
+        so the marquee (z-20, absolute bottom-0) directly covers the
+        PNG's bottom and there is no visible gap. The text column also
+        stretches, but its content sits at the top, so the stats stay
+        well above the marquee.
+      */}
+      <div className="relative mx-auto grid w-full max-w-6xl gap-10 px-5 pb-24 sm:px-8 md:min-h-[680px] md:grid-cols-[1.25fr_1fr] md:pb-0">
         {/* ---------- copy ---------- */}
-        <div className="max-w-2xl pb-24 md:pb-32">
+        <div className="max-w-2xl pt-2 md:pt-4">
           <Eyebrow>{eyebrow}</Eyebrow>
           <h1 className="mt-5 text-4xl font-semibold leading-[1.02] tracking-[-0.035em] text-foreground sm:text-5xl md:text-[64px] md:leading-[1.02]">
             {title}
@@ -85,8 +96,10 @@ export function Hero({
           </dl>
         </div>
 
-        {/* ---------- eye-exam PNG, anchored to the very bottom ---------- */}
-        <div className="relative h-[460px] w-full self-end sm:h-[580px] md:h-[680px]">
+        {/* ---------- eye-exam PNG, anchored to the very bottom ----------
+             Hidden on mobile (hidden md:block) so the hero collapses to
+             a compact text-only header on small screens. */}
+        <div className="relative hidden h-[460px] w-full sm:h-[580px] md:block md:h-[680px]">
           <Image
             src="/assets/DoctorEyeCheckNoBakgroundPNG.png"
             alt="Dr. Kalyan Aluri performing a vision check at Fort Wayne Direct Primary Care"
@@ -96,6 +109,12 @@ export function Hero({
             className="object-contain object-bottom drop-shadow-[0_30px_60px_rgba(10,37,64,0.25)]"
           />
         </div>
+      </div>
+
+      {/* ---------- Marquee, absolutely positioned at the bottom -----------
+           z-20 puts it above the PNG so nothing leaks below.            */}
+      <div className="absolute inset-x-0 bottom-0 z-20">
+        <CampaignMarquee variant="dark" />
       </div>
     </section>
   );
