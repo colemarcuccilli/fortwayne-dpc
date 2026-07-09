@@ -4,6 +4,7 @@ import { useState } from "react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { LinkButton } from "@/components/ui/link-button";
+import { saveSubmissionLocal } from "@/lib/admin/public-submission";
 import { ArrowLeft, ArrowRight, Check } from "lucide-react";
 import {
   ACTIVITY_LEVELS,
@@ -77,6 +78,23 @@ export function PatientForm() {
           next();
           return;
         }
+        const form = e.currentTarget;
+        const data = new FormData(form);
+        const firstName = String(data.get("first_name") ?? "");
+        const lastName = String(data.get("last_name") ?? "");
+        const email = String(data.get("email") ?? "");
+        const phone = String(data.get("cell_phone") ?? "");
+        saveSubmissionLocal({
+          type: "patient",
+          name: `${firstName} ${lastName}`.trim() || "New patient",
+          email: email || undefined,
+          phone: phone || undefined,
+          subject: "New patient intake completed",
+          meta: {
+            formVersion: "v1",
+            pages: 5,
+          },
+        });
         setSubmitted(true);
       }}
       className="space-y-10"

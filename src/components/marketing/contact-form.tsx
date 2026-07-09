@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import { saveSubmissionLocal } from "@/lib/admin/public-submission";
 
 interface ContactFormProps {
   heardAboutOptions?: string[];
@@ -45,6 +46,22 @@ export function ContactForm({ heardAboutOptions }: ContactFormProps) {
     <form
       onSubmit={(e) => {
         e.preventDefault();
+        const form = e.currentTarget;
+        const data = new FormData(form);
+        const firstName = String(data.get("firstName") ?? "");
+        const lastName = String(data.get("lastName") ?? "");
+        const email = String(data.get("email") ?? "");
+        const phone = String(data.get("phone") ?? "");
+        const message = String(data.get("message") ?? "");
+        const heardAbout = String(data.get("heardAbout") ?? "");
+        saveSubmissionLocal({
+          type: "contact",
+          name: `${firstName} ${lastName}`.trim(),
+          email: email || undefined,
+          phone: phone || undefined,
+          message: message || undefined,
+          meta: heardAbout ? { heardAbout } : undefined,
+        });
         setSubmitted(true);
       }}
       className="space-y-5"
