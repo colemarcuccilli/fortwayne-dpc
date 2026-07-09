@@ -1,11 +1,15 @@
 "use client";
 
-// Admin state store — React Context wrapping a reducer that persists to
-// localStorage on every change. This is the ONLY layer touching storage;
-// pages/components dispatch actions or read state via useAdmin().
+// Admin state store.
 //
-// When Supabase is wired up, swap the reducer for a hook that calls the
-// Supabase client. The public API (useAdmin) does not change.
+// The reducer + useAdmin() API is unchanged. What differs from the
+// first draft: instead of persisting to localStorage, we now hydrate
+// from Supabase on mount and mirror every mutation as a fire-and-forget
+// upsert / delete against the corresponding table.
+//
+// If Supabase is not configured (SUPABASE_CONFIGURED is false), we
+// fall back to the local SEED and everything still works — this keeps
+// the demo functional even on a preview URL without env vars set.
 
 import { nanoid } from "nanoid";
 import {
@@ -31,8 +35,28 @@ import type {
   Task,
   Transaction,
 } from "./types";
-
-const STORAGE_KEY = "fwdpc-admin-state-v1";
+import {
+  SUPABASE_CONFIGURED,
+  appointmentFromRow,
+  appointmentToRow,
+  availabilityFromRow,
+  availabilityToRow,
+  customerFromRow,
+  customerToRow,
+  getSupabase,
+  messageFromRow,
+  messageToRow,
+  prospectFromRow,
+  prospectToRow,
+  settingsFromRow,
+  settingsToRow,
+  submissionFromRow,
+  submissionToRow,
+  taskFromRow,
+  taskToRow,
+  transactionFromRow,
+  transactionToRow,
+} from "./supabase";
 
 // -------------------- reducer --------------------
 
@@ -40,10 +64,18 @@ type Action =
   | { type: "hydrate"; state: AdminState }
   | { type: "reset" }
   // prospects
-  | { type: "prospect_add"; data: Omit<Prospect, "id" | "createdAt" | "updatedAt" | "activities" | "contacts" | "tags"> & Partial<Pick<Prospect, "contacts" | "tags">> }
+  | {
+      type: "prospect_add";
+      data: Omit<Prospect, "id" | "createdAt" | "updatedAt" | "activities" | "contacts" | "tags"> &
+        Partial<Pick<Prospect, "contacts" | "tags">>;
+    }
   | { type: "prospect_update"; id: string; patch: Partial<Prospect> }
   | { type: "prospect_delete"; id: string }
-  | { type: "prospect_add_activity"; id: string; activity: Omit<ProspectActivity, "id" | "createdAt"> }
+  | {
+      type: "prospect_add_activity";
+      id: string;
+      activity: Omit<ProspectActivity, "id" | "createdAt">;
+    }
   // submissions
   | { type: "submission_add"; data: Omit<Submission, "id" | "createdAt" | "read" | "archived"> }
   | { type: "submission_mark_read"; id: string; read: boolean }
@@ -77,6 +109,9 @@ function nowIso() {
   return new Date().toISOString();
 }
 
+// The reducer stays PURE — it only updates state. Side effects (Supabase
+// writes) live in the sideEffect() function below, which the dispatcher
+// wrapper calls after each action.
 function reducer(state: AdminState, action: Action): AdminState {
   switch (action.type) {
     case "hydrate":
@@ -268,63 +303,297 @@ function reducer(state: AdminState, action: Action): AdminState {
   }
 }
 
+/**
+ * Fire-and-forget Supabase mirror of a reducer action. Reads the
+ * NEXT state to know what to write. Errors are swallowed to console
+ * so a transient network failure never freezes the UI — full
+ * refresh on next mount re-syncs.
+ */
+async function sideEffect(action: Action, nextState: AdminState): Promise<void> {
+  if (!SUPABASE_CONFIGURED) return;
+  const supabase = getSupabase();
+  try {
+    switch (action.type) {
+      case "hydrate":
+      case "reset":
+        return; // no writes
+
+      case "prospect_add": {
+        const p = nextState.prospects[0];
+        await supabase.from("prospects").insert(prospectToRow(p));
+        return;
+      }
+      case "prospect_update":
+      case "prospect_add_activity": {
+        const p = nextState.prospects.find((p) => p.id === action.id);
+        if (p) await supabase.from("prospects").upsert(prospectToRow(p));
+        return;
+      }
+      case "prospect_delete":
+        await supabase.from("prospects").delete().eq("id", action.id);
+        return;
+
+      case "submission_add": {
+        const s = nextState.submissions[0];
+        await supabase.from("submissions").insert(submissionToRow(s));
+        return;
+      }
+      case "submission_mark_read":
+      case "submission_archive": {
+        const s = nextState.submissions.find((s) => s.id === action.id);
+        if (s) await supabase.from("submissions").upsert(submissionToRow(s));
+        return;
+      }
+
+      case "appt_add": {
+        const a = nextState.appointments[0];
+        await supabase.from("appointments").insert(appointmentToRow(a));
+        return;
+      }
+      case "appt_update": {
+        const a = nextState.appointments.find((a) => a.id === action.id);
+        if (a) await supabase.from("appointments").upsert(appointmentToRow(a));
+        return;
+      }
+      case "appt_delete":
+        await supabase.from("appointments").delete().eq("id", action.id);
+        return;
+
+      case "customer_add": {
+        const c = nextState.customers[0];
+        await supabase.from("customers").insert(customerToRow(c));
+        return;
+      }
+      case "customer_update":
+      case "customer_add_note": {
+        const c = nextState.customers.find((c) => c.id === action.id);
+        if (c) await supabase.from("customers").upsert(customerToRow(c));
+        return;
+      }
+      case "customer_delete":
+        await supabase.from("customers").delete().eq("id", action.id);
+        return;
+
+      case "txn_add": {
+        const t = nextState.transactions[0];
+        await supabase.from("transactions").insert(transactionToRow(t));
+        return;
+      }
+      case "txn_delete":
+        await supabase.from("transactions").delete().eq("id", action.id);
+        return;
+
+      case "task_add": {
+        const t = nextState.tasks[0];
+        await supabase.from("tasks").insert(taskToRow(t));
+        return;
+      }
+      case "task_update": {
+        const t = nextState.tasks.find((t) => t.id === action.id);
+        if (t) await supabase.from("tasks").upsert(taskToRow(t));
+        return;
+      }
+      case "task_delete":
+        await supabase.from("tasks").delete().eq("id", action.id);
+        return;
+
+      case "availability_set":
+        await supabase
+          .from("availability")
+          .upsert(availabilityToRow(nextState.availability));
+        return;
+
+      case "settings_update":
+        await supabase.from("settings").upsert(settingsToRow(nextState.settings));
+        return;
+
+      case "message_add": {
+        const m = nextState.messages[0];
+        await supabase.from("messages").insert(messageToRow(m));
+        return;
+      }
+      case "message_send": {
+        const m = nextState.messages.find((m) => m.id === action.id);
+        if (m) await supabase.from("messages").upsert(messageToRow(m));
+        return;
+      }
+      case "message_delete":
+        await supabase.from("messages").delete().eq("id", action.id);
+        return;
+    }
+  } catch (err) {
+    console.error("[admin/store] Supabase sync failed:", err);
+  }
+}
+
+// -------------------- hydration --------------------
+
+async function hydrateFromSupabase(): Promise<AdminState> {
+  const supabase = getSupabase();
+  const [
+    prospects,
+    submissions,
+    customers,
+    appointments,
+    transactions,
+    tasks,
+    messages,
+    availability,
+    settings,
+  ] = await Promise.all([
+    supabase.from("prospects").select("*").order("updated_at", { ascending: false }),
+    supabase.from("submissions").select("*").order("created_at", { ascending: false }),
+    supabase.from("customers").select("*").order("created_at", { ascending: false }),
+    supabase.from("appointments").select("*").order("starts_at", { ascending: true }),
+    supabase.from("transactions").select("*").order("occurred_at", { ascending: false }),
+    supabase.from("tasks").select("*").order("created_at", { ascending: false }),
+    supabase.from("messages").select("*").order("created_at", { ascending: false }),
+    supabase.from("availability").select("*").eq("id", "singleton").maybeSingle(),
+    supabase.from("settings").select("*").eq("id", "singleton").maybeSingle(),
+  ]);
+
+  return {
+    prospects: (prospects.data ?? []).map(prospectFromRow),
+    submissions: (submissions.data ?? []).map(submissionFromRow),
+    customers: (customers.data ?? []).map(customerFromRow),
+    appointments: (appointments.data ?? []).map(appointmentFromRow),
+    transactions: (transactions.data ?? []).map(transactionFromRow),
+    tasks: (tasks.data ?? []).map(taskFromRow),
+    messages: (messages.data ?? []).map(messageFromRow),
+    availability: availability.data
+      ? availabilityFromRow(availability.data)
+      : SEED.availability,
+    settings: settings.data ? settingsFromRow(settings.data) : SEED.settings,
+  };
+}
+
+async function seedIfEmpty(state: AdminState): Promise<void> {
+  if (!SUPABASE_CONFIGURED) return;
+  const supabase = getSupabase();
+  const nothingToSeed =
+    state.prospects.length > 0 ||
+    state.customers.length > 0 ||
+    state.appointments.length > 0 ||
+    state.submissions.length > 0 ||
+    state.transactions.length > 0 ||
+    state.tasks.length > 0 ||
+    state.messages.length > 0;
+  if (nothingToSeed) return;
+  try {
+    await Promise.all([
+      supabase.from("prospects").insert(SEED.prospects.map(prospectToRow)),
+      supabase.from("submissions").insert(SEED.submissions.map(submissionToRow)),
+      supabase.from("customers").insert(SEED.customers.map(customerToRow)),
+      supabase.from("appointments").insert(SEED.appointments.map(appointmentToRow)),
+      supabase.from("transactions").insert(SEED.transactions.map(transactionToRow)),
+      supabase.from("tasks").insert(SEED.tasks.map(taskToRow)),
+      supabase.from("messages").insert(SEED.messages.map(messageToRow)),
+    ]);
+  } catch (err) {
+    console.error("[admin/store] initial seed failed:", err);
+  }
+}
+
 // -------------------- context --------------------
 
 interface AdminContextValue {
   state: AdminState;
   dispatch: React.Dispatch<Action>;
   hydrated: boolean;
-  resetToSeed: () => void;
+  resetToSeed: () => Promise<void>;
 }
 
 const AdminContext = createContext<AdminContextValue | null>(null);
 
-function loadFromStorage(): AdminState | null {
-  if (typeof window === "undefined") return null;
-  try {
-    const raw = window.localStorage.getItem(STORAGE_KEY);
-    if (!raw) return null;
-    return JSON.parse(raw) as AdminState;
-  } catch {
-    return null;
-  }
-}
-
-function saveToStorage(state: AdminState) {
-  if (typeof window === "undefined") return;
-  try {
-    window.localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
-  } catch {
-    // storage full or blocked — silent
-  }
-}
-
 export function AdminProvider({ children }: { children: React.ReactNode }) {
-  const [state, dispatch] = useReducer(reducer, SEED);
+  const [state, dispatchRaw] = useReducer(reducer, SEED);
   const [hydrated, setHydrated] = useReducer(
     (_: boolean, next: boolean) => next,
     false,
   );
 
-  // Hydrate from localStorage on mount, and immediately mark hydrated
+  // Wrap dispatch so every action mirrors to Supabase.
+  const dispatch = useCallback<React.Dispatch<Action>>(
+    (action) => {
+      dispatchRaw(action);
+      // Read the ABOUT-TO-BE state to send to sideEffect
+      const next = reducer(state, action);
+      void sideEffect(action, next);
+    },
+    [state],
+  );
+
+  // Hydrate once on mount
   useEffect(() => {
-    const stored = loadFromStorage();
-    if (stored) dispatch({ type: "hydrate", state: stored });
-    setHydrated(true);
+    let cancelled = false;
+    (async () => {
+      if (!SUPABASE_CONFIGURED) {
+        setHydrated(true);
+        return;
+      }
+      try {
+        const remote = await hydrateFromSupabase();
+        if (cancelled) return;
+        // If Supabase is completely empty on first load, seed it with the
+        // demo data so Cole's first look isn't a blank slate. Then re-fetch.
+        if (
+          remote.prospects.length === 0 &&
+          remote.customers.length === 0 &&
+          remote.appointments.length === 0
+        ) {
+          await seedIfEmpty(remote);
+          const reHydrated = await hydrateFromSupabase();
+          dispatchRaw({ type: "hydrate", state: reHydrated });
+        } else {
+          dispatchRaw({ type: "hydrate", state: remote });
+        }
+      } catch (err) {
+        console.error("[admin/store] hydrate failed:", err);
+      }
+      if (!cancelled) setHydrated(true);
+    })();
+    return () => {
+      cancelled = true;
+    };
   }, []);
 
-  // Persist on every change after hydration
-  useEffect(() => {
-    if (hydrated) saveToStorage(state);
-  }, [state, hydrated]);
-
-  const resetToSeed = useCallback(() => {
-    dispatch({ type: "reset" });
+  const resetToSeed = useCallback(async () => {
+    if (SUPABASE_CONFIGURED) {
+      const supabase = getSupabase();
+      try {
+        await Promise.all([
+          supabase.from("prospects").delete().neq("id", ""),
+          supabase.from("submissions").delete().neq("id", ""),
+          supabase.from("customers").delete().neq("id", ""),
+          supabase.from("appointments").delete().neq("id", ""),
+          supabase.from("transactions").delete().neq("id", ""),
+          supabase.from("tasks").delete().neq("id", ""),
+          supabase.from("messages").delete().neq("id", ""),
+        ]);
+        await seedIfEmpty({
+          ...SEED,
+          prospects: [],
+          submissions: [],
+          customers: [],
+          appointments: [],
+          transactions: [],
+          tasks: [],
+          messages: [],
+        });
+        const reHydrated = await hydrateFromSupabase();
+        dispatchRaw({ type: "hydrate", state: reHydrated });
+      } catch (err) {
+        console.error("[admin/store] reset failed:", err);
+        dispatchRaw({ type: "reset" });
+      }
+    } else {
+      dispatchRaw({ type: "reset" });
+    }
   }, []);
 
   const value = useMemo(
     () => ({ state, dispatch, hydrated, resetToSeed }),
-    [state, hydrated, resetToSeed],
+    [state, dispatch, hydrated, resetToSeed],
   );
 
   return <AdminContext.Provider value={value}>{children}</AdminContext.Provider>;
