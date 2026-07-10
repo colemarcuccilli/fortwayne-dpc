@@ -292,11 +292,40 @@ export default function ProspectDetailPage() {
             )}
           </div>
 
+          {prospect.sources.length > 0 && (
+            <div className="rounded-2xl border border-slate-200 bg-white p-5">
+              <h2 className="mb-3 text-sm font-semibold text-slate-900">
+                Sources
+              </h2>
+              <ul className="space-y-1.5 text-xs">
+                {prospect.sources.map((s) => (
+                  <li key={s} className="break-words">
+                    {/^https?:\/\//.test(s) ? (
+                      <a
+                        href={s}
+                        target="_blank"
+                        rel="noreferrer"
+                        className="text-slate-700 underline underline-offset-2 hover:text-slate-900"
+                      >
+                        {s.replace(/^https?:\/\//, "")}
+                      </a>
+                    ) : (
+                      <span className="text-slate-700">{s}</span>
+                    )}
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
+
           <div className="rounded-2xl border border-slate-200 bg-white p-5">
             <h2 className="mb-3 text-sm font-semibold text-slate-900">Timeline</h2>
             <dl className="space-y-2 text-xs">
               <TimelineRow label="Added" value={formatDate(prospect.createdAt)} />
               <TimelineRow label="Updated" value={timeAgo(prospect.updatedAt)} />
+              {prospect.ownerLabel && (
+                <TimelineRow label="Source" value={prospect.ownerLabel} />
+              )}
               {prospect.nextFollowUp && (
                 <TimelineRow
                   label="Follow-up"

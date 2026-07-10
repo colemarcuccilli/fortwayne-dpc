@@ -59,6 +59,8 @@ export interface Prospect {
   tags: string[];
   estValueUsd?: number;
   nextFollowUp?: ISODate;
+  /** URLs / references the research came from */
+  sources: string[];
   createdAt: ISODate;
   updatedAt: ISODate;
 }

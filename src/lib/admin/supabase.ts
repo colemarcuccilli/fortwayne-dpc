@@ -64,6 +64,7 @@ export function prospectFromRow(r: Record<string, unknown>): Prospect {
     tags: (r.tags as string[]) ?? [],
     estValueUsd: (r.est_value_usd as number) ?? undefined,
     nextFollowUp: (r.next_follow_up as string) ?? undefined,
+    sources: (r.sources as string[]) ?? [],
     createdAt: r.created_at as string,
     updatedAt: r.updated_at as string,
   };
@@ -85,6 +86,7 @@ export function prospectToRow(p: Prospect) {
     tags: p.tags,
     est_value_usd: p.estValueUsd ?? null,
     next_follow_up: p.nextFollowUp ?? null,
+    sources: p.sources ?? [],
     created_at: p.createdAt,
     updated_at: p.updatedAt,
   };

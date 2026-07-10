@@ -12,9 +12,15 @@ import { createHmac, timingSafeEqual } from "crypto";
 
 const COOKIE_NAME = "fwdpc_admin_session";
 const PORTAL_COOKIE_NAME = "fwdpc_portal_session";
+const RESEARCH_COOKIE_NAME = "fwdpc_research_session";
 
 // Dev fallbacks — override in Vercel env for production
 const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD ?? "fwdpc-admin-2026";
+// Separate, lower-privilege password for the research agent. It can only
+// reach /research (add prospects). It cannot see customers, transactions,
+// charts, or any patient data.
+const RESEARCHER_PASSWORD =
+  process.env.RESEARCHER_PASSWORD ?? "fwdpc-research-2026";
 const AUTH_SECRET = process.env.AUTH_SECRET ?? "dev-secret-not-for-production-6a5f";
 const SESSION_TTL_HOURS = 24 * 7;
 
@@ -22,7 +28,7 @@ function sign(payload: string): string {
   return createHmac("sha256", AUTH_SECRET).update(payload).digest("hex");
 }
 
-function encode(scope: "admin" | "portal", who: string): string {
+function encode(scope: "admin" | "portal" | "research", who: string): string {
   const expiresAt = Date.now() + SESSION_TTL_HOURS * 60 * 60 * 1000;
   const payload = `${scope}:${who}:${expiresAt}`;
   const sig = sign(payload);
@@ -49,12 +55,21 @@ function decode(token: string | undefined | null): { scope: string; who: string;
   return { scope, who, expiresAt };
 }
 
+function constantTimeEquals(a: string, b: string): boolean {
+  const ba = Buffer.from(a);
+  const bb = Buffer.from(b);
+  if (ba.length !== bb.length) return false;
+  return timingSafeEqual(ba, bb);
+}
+
 export function verifyAdminPassword(pw: string): boolean {
   if (!pw) return false;
-  const a = Buffer.from(pw);
-  const b = Buffer.from(ADMIN_PASSWORD);
-  if (a.length !== b.length) return false;
-  return timingSafeEqual(a, b);
+  return constantTimeEquals(pw, ADMIN_PASSWORD);
+}
+
+export function verifyResearcherPassword(pw: string): boolean {
+  if (!pw) return false;
+  return constantTimeEquals(pw, RESEARCHER_PASSWORD);
 }
 
 export function createAdminSession(who = "admin"): string {
@@ -63,6 +78,10 @@ export function createAdminSession(who = "admin"): string {
 
 export function createPortalSession(email: string): string {
   return encode("portal", email);
+}
+
+export function createResearchSession(who = "research-agent"): string {
+  return encode("research", who);
 }
 
 export function readAdminSession(cookieValue: string | undefined): string | null {
@@ -77,5 +96,14 @@ export function readPortalSession(cookieValue: string | undefined): string | nul
   return decoded.who;
 }
 
+export function readResearchSession(
+  cookieValue: string | undefined,
+): string | null {
+  const decoded = decode(cookieValue);
+  if (!decoded || decoded.scope !== "research") return null;
+  return decoded.who;
+}
+
 export const ADMIN_COOKIE = COOKIE_NAME;
 export const PORTAL_COOKIE = PORTAL_COOKIE_NAME;
+export const RESEARCH_COOKIE = RESEARCH_COOKIE_NAME;

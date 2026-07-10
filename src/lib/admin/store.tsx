@@ -66,8 +66,11 @@ type Action =
   // prospects
   | {
       type: "prospect_add";
-      data: Omit<Prospect, "id" | "createdAt" | "updatedAt" | "activities" | "contacts" | "tags"> &
-        Partial<Pick<Prospect, "contacts" | "tags">>;
+      data: Omit<
+        Prospect,
+        "id" | "createdAt" | "updatedAt" | "activities" | "contacts" | "tags" | "sources"
+      > &
+        Partial<Pick<Prospect, "contacts" | "tags" | "sources">>;
     }
   | { type: "prospect_update"; id: string; patch: Partial<Prospect> }
   | { type: "prospect_delete"; id: string }
@@ -121,13 +124,14 @@ function reducer(state: AdminState, action: Action): AdminState {
 
     case "prospect_add": {
       const p: Prospect = {
+        ...action.data,
         id: `p_${nanoid(8)}`,
         createdAt: nowIso(),
         updatedAt: nowIso(),
         activities: [],
         contacts: action.data.contacts ?? [],
         tags: action.data.tags ?? [],
-        ...action.data,
+        sources: action.data.sources ?? [],
       } as Prospect;
       return { ...state, prospects: [p, ...state.prospects] };
     }
