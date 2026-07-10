@@ -4,11 +4,12 @@ import { Calendar, Plus } from "lucide-react";
 
 export const metadata: Metadata = { title: "Your appointments" };
 
-const APPTS = [
-  { id: "a1", type: "Annual wellness", when: "Tue, May 19 · 10:00 AM", location: "In office" },
-  { id: "a2", type: "Follow-up", when: "Mon, June 15 · 2:30 PM", location: "Virtual" },
-  { id: "a3", type: "Weight-loss check-in", when: "Thu, July 3 · 11:00 AM", location: "In office" },
-];
+const APPTS: {
+  id: string;
+  type: string;
+  when: string;
+  location: string;
+}[] = [];
 
 export default function PortalAppointmentsPage() {
   return (
@@ -32,6 +33,16 @@ export default function PortalAppointmentsPage() {
       </div>
 
       <div className="rounded-2xl border border-slate-200 bg-white">
+        {APPTS.length === 0 && (
+          <div className="px-6 py-12 text-center">
+            <p className="text-sm font-medium text-slate-700">
+              No appointments yet
+            </p>
+            <p className="mt-1 text-xs text-slate-500">
+              Book your first visit with the button above.
+            </p>
+          </div>
+        )}
         <ul className="divide-y divide-slate-100">
           {APPTS.map((a) => (
             <li key={a.id} className="flex items-center gap-4 px-4 py-4">

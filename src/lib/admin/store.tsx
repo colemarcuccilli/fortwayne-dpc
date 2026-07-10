@@ -471,40 +471,14 @@ async function hydrateFromSupabase(): Promise<AdminState> {
   };
 }
 
-async function seedIfEmpty(state: AdminState): Promise<void> {
-  if (!SUPABASE_CONFIGURED) return;
-  const supabase = getSupabase();
-  const nothingToSeed =
-    state.prospects.length > 0 ||
-    state.customers.length > 0 ||
-    state.appointments.length > 0 ||
-    state.submissions.length > 0 ||
-    state.transactions.length > 0 ||
-    state.tasks.length > 0 ||
-    state.messages.length > 0;
-  if (nothingToSeed) return;
-  try {
-    await Promise.all([
-      supabase.from("prospects").insert(SEED.prospects.map(prospectToRow)),
-      supabase.from("submissions").insert(SEED.submissions.map(submissionToRow)),
-      supabase.from("customers").insert(SEED.customers.map(customerToRow)),
-      supabase.from("appointments").insert(SEED.appointments.map(appointmentToRow)),
-      supabase.from("transactions").insert(SEED.transactions.map(transactionToRow)),
-      supabase.from("tasks").insert(SEED.tasks.map(taskToRow)),
-      supabase.from("messages").insert(SEED.messages.map(messageToRow)),
-    ]);
-  } catch (err) {
-    console.error("[admin/store] initial seed failed:", err);
-  }
-}
-
 // -------------------- context --------------------
 
 interface AdminContextValue {
   state: AdminState;
   dispatch: React.Dispatch<Action>;
   hydrated: boolean;
-  resetToSeed: () => Promise<void>;
+  /** Permanently deletes every CRM record. There is no seed to fall back to. */
+  clearAll: () => Promise<void>;
 }
 
 const AdminContext = createContext<AdminContextValue | null>(null);
@@ -537,20 +511,7 @@ export function AdminProvider({ children }: { children: React.ReactNode }) {
       }
       try {
         const remote = await hydrateFromSupabase();
-        if (cancelled) return;
-        // If Supabase is completely empty on first load, seed it with the
-        // demo data so Cole's first look isn't a blank slate. Then re-fetch.
-        if (
-          remote.prospects.length === 0 &&
-          remote.customers.length === 0 &&
-          remote.appointments.length === 0
-        ) {
-          await seedIfEmpty(remote);
-          const reHydrated = await hydrateFromSupabase();
-          dispatchRaw({ type: "hydrate", state: reHydrated });
-        } else {
-          dispatchRaw({ type: "hydrate", state: remote });
-        }
+        if (!cancelled) dispatchRaw({ type: "hydrate", state: remote });
       } catch (err) {
         console.error("[admin/store] hydrate failed:", err);
       }
@@ -561,7 +522,8 @@ export function AdminProvider({ children }: { children: React.ReactNode }) {
     };
   }, []);
 
-  const resetToSeed = useCallback(async () => {
+  // Permanently wipe every CRM record. No seed is re-inserted.
+  const clearAll = useCallback(async () => {
     if (SUPABASE_CONFIGURED) {
       const supabase = getSupabase();
       try {
@@ -574,30 +536,16 @@ export function AdminProvider({ children }: { children: React.ReactNode }) {
           supabase.from("tasks").delete().neq("id", ""),
           supabase.from("messages").delete().neq("id", ""),
         ]);
-        await seedIfEmpty({
-          ...SEED,
-          prospects: [],
-          submissions: [],
-          customers: [],
-          appointments: [],
-          transactions: [],
-          tasks: [],
-          messages: [],
-        });
-        const reHydrated = await hydrateFromSupabase();
-        dispatchRaw({ type: "hydrate", state: reHydrated });
       } catch (err) {
-        console.error("[admin/store] reset failed:", err);
-        dispatchRaw({ type: "reset" });
+        console.error("[admin/store] clear failed:", err);
       }
-    } else {
-      dispatchRaw({ type: "reset" });
     }
+    dispatchRaw({ type: "reset" });
   }, []);
 
   const value = useMemo(
-    () => ({ state, dispatch, hydrated, resetToSeed }),
-    [state, dispatch, hydrated, resetToSeed],
+    () => ({ state, dispatch, hydrated, clearAll }),
+    [state, dispatch, hydrated, clearAll],
   );
 
   return <AdminContext.Provider value={value}>{children}</AdminContext.Provider>;

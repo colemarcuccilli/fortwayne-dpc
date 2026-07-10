@@ -14,22 +14,14 @@ export const metadata: Metadata = {
   title: "Your portal",
 };
 
-// Demo data — swap for the signed-in member's real records once membership
-// DB is wired. Read from a session helper on the server.
-const DEMO_APPTS = [
-  {
-    id: "a1",
-    typeLabel: "Annual wellness",
-    when: "Tue, May 19 · 10:00 AM",
-    location: "In office",
-  },
-  {
-    id: "a2",
-    typeLabel: "Follow-up",
-    when: "Mon, June 15 · 2:30 PM",
-    location: "Virtual",
-  },
-];
+// No fake records. Member-specific data will render here once member auth
+// and the membership DB are wired.
+const DEMO_APPTS: {
+  id: string;
+  typeLabel: string;
+  when: string;
+  location: string;
+}[] = [];
 
 export default function PortalHomePage() {
   return (
@@ -81,56 +73,53 @@ export default function PortalHomePage() {
               See all <ArrowRight className="h-3 w-3" />
             </Link>
           </div>
-          <ul className="divide-y divide-slate-100">
-            {DEMO_APPTS.map((a) => (
-              <li
-                key={a.id}
-                className="flex items-center gap-3 py-3 first:pt-0 last:pb-0"
+          {DEMO_APPTS.length === 0 ? (
+            <div className="rounded-xl border border-dashed border-slate-300 bg-slate-50/60 px-4 py-8 text-center">
+              <p className="text-sm font-medium text-slate-700">
+                No upcoming appointments
+              </p>
+              <p className="mt-1 text-xs text-slate-500">
+                Book your next visit and it&rsquo;ll show up here.
+              </p>
+              <Link
+                href="/portal/appointments/new"
+                className="mt-4 inline-flex items-center gap-1.5 rounded-lg bg-brand px-3.5 py-2 text-xs font-medium text-brand-foreground hover:bg-brand/90"
               >
-                <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-brand-muted text-brand">
-                  <Calendar className="h-4 w-4" />
-                </div>
-                <div className="min-w-0 flex-1">
-                  <div className="text-sm font-semibold text-slate-900">
-                    {a.typeLabel}
-                  </div>
-                  <div className="text-xs text-slate-500">
-                    {a.when} · {a.location}
-                  </div>
-                </div>
-                <Link
-                  href={`/portal/appointments`}
-                  className="text-xs font-medium text-brand hover:underline"
+                <Calendar className="h-3.5 w-3.5" />
+                Book appointment
+              </Link>
+            </div>
+          ) : (
+            <ul className="divide-y divide-slate-100">
+              {DEMO_APPTS.map((a) => (
+                <li
+                  key={a.id}
+                  className="flex items-center gap-3 py-3 first:pt-0 last:pb-0"
                 >
-                  Manage
-                </Link>
-              </li>
-            ))}
-          </ul>
+                  <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-brand-muted text-brand">
+                    <Calendar className="h-4 w-4" />
+                  </div>
+                  <div className="min-w-0 flex-1">
+                    <div className="text-sm font-semibold text-slate-900">
+                      {a.typeLabel}
+                    </div>
+                    <div className="text-xs text-slate-500">
+                      {a.when} · {a.location}
+                    </div>
+                  </div>
+                  <Link
+                    href={`/portal/appointments`}
+                    className="text-xs font-medium text-brand hover:underline"
+                  >
+                    Manage
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          )}
         </div>
 
         <div className="space-y-4">
-          <div className="rounded-2xl border border-slate-200 bg-white p-5">
-            <h2 className="text-sm font-semibold text-slate-900">Membership</h2>
-            <div className="mt-3 rounded-xl bg-slate-50 p-4">
-              <div className="text-[10px] font-semibold uppercase tracking-[0.14em] text-slate-500">
-                Current plan
-              </div>
-              <div className="mt-1 text-lg font-semibold text-slate-900">
-                Family plan
-              </div>
-              <div className="mt-1 font-mono text-xs text-slate-600">
-                $200 / month · Active since Feb 2026
-              </div>
-            </div>
-            <Link
-              href="/membership"
-              className="mt-3 inline-flex items-center gap-1 text-xs font-medium text-brand hover:underline"
-            >
-              View plan details <ArrowRight className="h-3 w-3" />
-            </Link>
-          </div>
-
           <div className="rounded-2xl border border-slate-200 bg-white p-5">
             <h2 className="text-sm font-semibold text-slate-900">Actions</h2>
             <div className="mt-3 space-y-1.5">
