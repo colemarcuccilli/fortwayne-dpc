@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { ADMIN_NAV } from "./nav-config";
+import { ADMIN_NAV_VISIBLE } from "./nav-config";
 import { cn } from "@/lib/utils";
 import { Stethoscope, LogOut } from "lucide-react";
 
@@ -27,7 +27,7 @@ export function AdminSidebar() {
 
       <nav aria-label="Admin" className="flex-1 overflow-y-auto p-3">
         <ul className="space-y-0.5">
-          {ADMIN_NAV.map((item) => {
+          {ADMIN_NAV_VISIBLE.map((item) => {
             const active =
               item.href === "/admin"
                 ? pathname === "/admin"
