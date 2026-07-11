@@ -7,10 +7,11 @@ import {
   TrendingUp,
   ArrowRight,
   Plus,
+  Send,
 } from "lucide-react";
 import { isAfter, isBefore, parseISO, addDays } from "date-fns";
 import { useAdmin } from "@/lib/admin/store";
-import { formatMoney, formatDate, timeAgo } from "@/lib/admin/format";
+import { formatDate, timeAgo } from "@/lib/admin/format";
 import { AdminPageHeader } from "@/components/admin/page-header";
 import { KpiCard } from "@/components/admin/kpi-card";
 import { EmptyState } from "@/components/admin/empty-state";
@@ -26,15 +27,11 @@ export default function AdminDashboardPage() {
   const activeProspects = state.prospects.filter(
     (p) => p.stage !== "won" && p.stage !== "lost",
   );
-  const pipelineOpenValue = activeProspects.reduce(
-    (sum, p) => sum + (p.estValueUsd ?? 0) * 100,
-    0,
+  // "To contact" = researched + queued-for-outreach; the real to-do count.
+  const toContact = state.prospects.filter(
+    (p) => p.stage === "researched" || p.stage === "to_contact",
   );
   const wonProspects = state.prospects.filter((p) => p.stage === "won");
-  const wonValue = wonProspects.reduce(
-    (sum, p) => sum + (p.estValueUsd ?? 0) * 100,
-    0,
-  );
   const unread = state.submissions.filter((s) => !s.read && !s.archived);
 
   const stageCounts: Record<string, number> = {};
@@ -84,17 +81,17 @@ export default function AdminDashboardPage() {
           icon={Building2}
         />
         <KpiCard
-          label="Pipeline value"
-          value={formatMoney(pipelineOpenValue)}
-          hint="open opportunities"
-          icon={TrendingUp}
+          label="To contact"
+          value={String(toContact.length)}
+          hint="researched, not yet reached out"
+          icon={Send}
         />
         <KpiCard
           label="Won"
-          value={formatMoney(wonValue)}
-          hint={`${wonProspects.length} closed`}
+          value={String(wonProspects.length)}
+          hint={wonProspects.length === 1 ? "employer signed" : "employers signed"}
           icon={CheckCircle2}
-          tone="success"
+          tone={wonProspects.length > 0 ? "success" : "default"}
         />
         <KpiCard
           label="Unread leads"
