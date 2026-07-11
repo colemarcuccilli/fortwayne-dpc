@@ -23,10 +23,10 @@ export default function AdminLayout({
       <AdminProvider>
         <div className="flex min-h-screen">
           <AdminSidebar />
-          <div className="flex min-h-screen flex-1 flex-col pb-14 lg:pb-0">
+          <div className="flex min-h-screen min-w-0 flex-1 flex-col pb-14 lg:pb-0">
             <AdminTopBar />
             <DemoNotice />
-            <main className="flex-1 px-4 pb-10 pt-4 lg:px-6 lg:pt-6">
+            <main className="w-full min-w-0 flex-1 px-4 pb-10 pt-4 lg:px-6 lg:pt-6">
               {children}
             </main>
           </div>

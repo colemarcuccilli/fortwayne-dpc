@@ -121,11 +121,11 @@ export default function AdminDashboardPage() {
             <ArrowRight className="h-3.5 w-3.5" />
           </AdminButton>
         </div>
-        <div className="grid grid-cols-2 gap-3 sm:grid-cols-4 lg:grid-cols-7">
+        <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4 xl:grid-cols-7">
           {PIPELINE_STAGES.map((stage) => (
             <div
               key={stage}
-              className="rounded-xl border border-slate-200 bg-slate-50 px-3 py-3"
+              className="min-w-0 rounded-xl border border-slate-200 bg-slate-50 px-3 py-3"
             >
               <StageBadge stage={stage} />
               <div className="mt-2 font-mono text-xl font-semibold tabular-nums text-slate-900">
