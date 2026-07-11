@@ -12,7 +12,14 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { PIPELINE_STAGES, PIPELINE_STAGE_LABEL, type PipelineStage } from "@/lib/admin/types";
+import {
+  BENEFITS_STATUSES,
+  BENEFITS_STATUS_LABEL,
+  PIPELINE_STAGES,
+  PIPELINE_STAGE_LABEL,
+  type BenefitsStatus,
+  type PipelineStage,
+} from "@/lib/admin/types";
 import { useAdmin } from "@/lib/admin/store";
 import { X, Plus } from "lucide-react";
 
@@ -37,7 +44,7 @@ export function ProspectForm({ onSaved, onCancel, initialStage = "researched" }:
   const [stage, setStage] = useState<PipelineStage>(initialStage);
   const [fitScore, setFitScore] = useState("7");
   const [fitReason, setFitReason] = useState("");
-  const [estValue, setEstValue] = useState("");
+  const [benefitsStatus, setBenefitsStatus] = useState<BenefitsStatus>("unknown");
   const [tagText, setTagText] = useState("");
   const [tags, setTags] = useState<string[]>([]);
   const [contactName, setContactName] = useState("");
@@ -81,7 +88,7 @@ export function ProspectForm({ onSaved, onCancel, initialStage = "researched" }:
         stage,
         fitScore: fitScore ? Number(fitScore) : undefined,
         fitReason: fitReason || undefined,
-        estValueUsd: estValue ? Number(estValue) : undefined,
+        benefitsStatus,
         contacts,
         tags,
       },
@@ -175,14 +182,22 @@ export function ProspectForm({ onSaved, onCancel, initialStage = "researched" }:
           />
         </div>
         <div className="space-y-2">
-          <Label htmlFor="est-value">Est. value ($/yr)</Label>
-          <Input
-            id="est-value"
-            type="number"
-            value={estValue}
-            onChange={(e) => setEstValue(e.target.value)}
-            placeholder="42000"
-          />
+          <Label htmlFor="benefits-status">Current benefits</Label>
+          <Select
+            value={benefitsStatus}
+            onValueChange={(v) => setBenefitsStatus(v as BenefitsStatus)}
+          >
+            <SelectTrigger id="benefits-status">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              {BENEFITS_STATUSES.map((s) => (
+                <SelectItem key={s} value={s}>
+                  {BENEFITS_STATUS_LABEL[s]}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
         </div>
       </div>
 

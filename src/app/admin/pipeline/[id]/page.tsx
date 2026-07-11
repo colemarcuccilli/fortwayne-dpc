@@ -5,17 +5,18 @@ import { notFound, useParams, useRouter } from "next/navigation";
 import { useState } from "react";
 import {
   ArrowLeft,
-  Building2,
   Calendar,
   Globe,
   MapPin,
   Mail,
   Phone,
+  ShieldCheck,
   Trash2,
   Users,
 } from "lucide-react";
 import { AdminPageHeader } from "@/components/admin/page-header";
 import { StageBadge } from "@/components/admin/stage-badge";
+import { BenefitsBadge } from "@/components/admin/benefits-badge";
 import { AdminButton } from "@/components/admin/admin-button";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
@@ -34,7 +35,7 @@ import {
   type PipelineStage,
   type ProspectActivity,
 } from "@/lib/admin/types";
-import { formatDate, formatMoney, timeAgo } from "@/lib/admin/format";
+import { formatDate, timeAgo } from "@/lib/admin/format";
 
 export default function ProspectDetailPage() {
   const params = useParams<{ id: string }>();
@@ -158,11 +159,9 @@ export default function ProspectDetailPage() {
                   {prospect.employeeCount}
                 </InfoRow>
               )}
-              {prospect.estValueUsd != null && (
-                <InfoRow icon={Building2} label="Est. annual value">
-                  {formatMoney(prospect.estValueUsd * 100)}
-                </InfoRow>
-              )}
+              <InfoRow icon={ShieldCheck} label="Current benefits">
+                <BenefitsBadge status={prospect.benefitsStatus} />
+              </InfoRow>
             </dl>
 
             {prospect.fitReason && (

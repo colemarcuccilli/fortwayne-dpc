@@ -56,13 +56,12 @@ export default function ReportsPage() {
     return map;
   }, [state.transactions]);
 
-  const pipelineWonValue = state.prospects
-    .filter((p) => p.stage === "won")
-    .reduce((s, p) => s + (p.estValueUsd ?? 0) * 100, 0);
-
-  const pipelineOpenValue = state.prospects
-    .filter((p) => p.stage !== "won" && p.stage !== "lost")
-    .reduce((s, p) => s + (p.estValueUsd ?? 0) * 100, 0);
+  const pipelineOpenCount = state.prospects.filter(
+    (p) => p.stage !== "won" && p.stage !== "lost",
+  ).length;
+  const pipelineWonCount = state.prospects.filter(
+    (p) => p.stage === "won",
+  ).length;
 
   return (
     <div className="space-y-6">
@@ -89,14 +88,14 @@ export default function ReportsPage() {
         />
         <KpiCard
           label="Pipeline open"
-          value={formatMoney(pipelineOpenValue)}
-          hint={`${state.prospects.filter((p) => p.stage !== "won" && p.stage !== "lost").length} prospects`}
+          value={String(pipelineOpenCount)}
+          hint="active prospects"
           icon={TrendingUp}
         />
         <KpiCard
           label="Pipeline won"
-          value={formatMoney(pipelineWonValue)}
-          hint={`${state.prospects.filter((p) => p.stage === "won").length} closed`}
+          value={String(pipelineWonCount)}
+          hint="employers signed"
           icon={Building2}
         />
       </div>

@@ -26,7 +26,12 @@ import {
   prospectFromRow,
   prospectToRow,
 } from "./supabase";
-import type { AdminState, Prospect, ProspectContact } from "./types";
+import type {
+  AdminState,
+  BenefitsStatus,
+  Prospect,
+  ProspectContact,
+} from "./types";
 
 const STORAGE_KEY = "fwdpc-admin-state-v1";
 
@@ -38,7 +43,7 @@ export interface NewProspectInput {
   location?: string;
   fitScore?: number;
   fitReason?: string;
-  estValueUsd?: number;
+  benefitsStatus?: BenefitsStatus;
   tags: string[];
   sources: string[];
   contacts: ProspectContact[];
@@ -72,7 +77,7 @@ function buildProspect(input: NewProspectInput): Prospect {
       : [],
     ownerLabel: "researcher",
     tags: input.tags,
-    estValueUsd: input.estValueUsd,
+    benefitsStatus: input.benefitsStatus,
     sources: input.sources,
     createdAt: now,
     updatedAt: now,

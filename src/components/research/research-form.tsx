@@ -5,9 +5,21 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { Plus, Trash2, X, Check } from "lucide-react";
 import { useResearch, type NewProspectInput } from "@/lib/admin/research-store";
-import type { ProspectContact } from "@/lib/admin/types";
+import {
+  BENEFITS_STATUSES,
+  BENEFITS_STATUS_LABEL,
+  type BenefitsStatus,
+  type ProspectContact,
+} from "@/lib/admin/types";
 
 interface ContactDraft extends ProspectContact {
   _id: string;
@@ -30,7 +42,7 @@ export function ResearchForm() {
   const [employeeCount, setEmployeeCount] = useState("");
   const [location, setLocation] = useState("Fort Wayne, IN");
   const [fitScore, setFitScore] = useState("7");
-  const [estValue, setEstValue] = useState("");
+  const [benefitsStatus, setBenefitsStatus] = useState<BenefitsStatus>("unknown");
   const [fitReason, setFitReason] = useState("");
   const [researchNotes, setResearchNotes] = useState("");
   const [tagText, setTagText] = useState("");
@@ -56,7 +68,7 @@ export function ResearchForm() {
     setEmployeeCount("");
     setLocation("Fort Wayne, IN");
     setFitScore("7");
-    setEstValue("");
+    setBenefitsStatus("unknown");
     setFitReason("");
     setResearchNotes("");
     setTags([]);
@@ -90,7 +102,7 @@ export function ResearchForm() {
       employeeCount: employeeCount ? Number(employeeCount) : undefined,
       location: location.trim() || undefined,
       fitScore: fitScore ? Number(fitScore) : undefined,
-      estValueUsd: estValue ? Number(estValue) : undefined,
+      benefitsStatus,
       fitReason: fitReason.trim() || undefined,
       researchNotes: researchNotes.trim() || undefined,
       tags,
@@ -195,14 +207,27 @@ export function ResearchForm() {
             />
           </div>
           <div className="space-y-2">
-            <Label htmlFor="est-value">Est. annual value ($)</Label>
-            <Input
-              id="est-value"
-              type="number"
-              value={estValue}
-              onChange={(e) => setEstValue(e.target.value)}
-              placeholder="68000"
-            />
+            <Label htmlFor="benefits-status">
+              Current employee health benefits
+            </Label>
+            <Select
+              value={benefitsStatus}
+              onValueChange={(v) => setBenefitsStatus(v as BenefitsStatus)}
+            >
+              <SelectTrigger id="benefits-status">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                {BENEFITS_STATUSES.map((s) => (
+                  <SelectItem key={s} value={s}>
+                    {BENEFITS_STATUS_LABEL[s]}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+            <p className="text-[11px] text-slate-500">
+              None or self-funded = strongest targets.
+            </p>
           </div>
           <div className="space-y-2 sm:col-span-2">
             <Label htmlFor="fit-reason">

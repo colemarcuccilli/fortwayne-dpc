@@ -35,6 +35,30 @@ export interface ProspectContact {
   linkedin?: string;
 }
 
+// Current employee-health-benefits situation — the core fit signal.
+export const BENEFITS_STATUSES = [
+  "none",
+  "fully_insured",
+  "self_funded",
+  "unknown",
+] as const;
+export type BenefitsStatus = (typeof BENEFITS_STATUSES)[number];
+
+export const BENEFITS_STATUS_LABEL: Record<BenefitsStatus, string> = {
+  none: "No health benefits",
+  fully_insured: "Traditional insurance",
+  self_funded: "Self-funded",
+  unknown: "Unknown",
+};
+
+/** Short label for tables / cards. */
+export const BENEFITS_STATUS_SHORT: Record<BenefitsStatus, string> = {
+  none: "None",
+  fully_insured: "Insured",
+  self_funded: "Self-funded",
+  unknown: "—",
+};
+
 export interface ProspectActivity {
   id: string;
   type: "note" | "call" | "email" | "meeting" | "stage_change";
@@ -57,7 +81,8 @@ export interface Prospect {
   activities: ProspectActivity[];
   ownerLabel?: string; // "researcher" | "cole" | etc.
   tags: string[];
-  estValueUsd?: number;
+  /** Current employee-health-benefits situation — the fit signal. */
+  benefitsStatus?: BenefitsStatus;
   nextFollowUp?: ISODate;
   /** URLs / references the research came from */
   sources: string[];

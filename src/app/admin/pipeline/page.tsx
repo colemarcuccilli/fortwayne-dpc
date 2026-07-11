@@ -37,7 +37,8 @@ import {
   type Prospect,
 } from "@/lib/admin/types";
 import { StageBadge } from "@/components/admin/stage-badge";
-import { formatMoney, initials, timeAgo } from "@/lib/admin/format";
+import { BenefitsBadge } from "@/components/admin/benefits-badge";
+import { initials, timeAgo } from "@/lib/admin/format";
 import { ProspectForm } from "@/components/admin/prospect-form";
 import { cn } from "@/lib/utils";
 
@@ -262,10 +263,8 @@ export default function PipelinePage() {
                             No contact
                           </span>
                         )}
-                        {p.estValueUsd ? (
-                          <span className="font-mono text-[11px] font-semibold tabular-nums text-slate-700">
-                            {formatMoney(p.estValueUsd * 100)}
-                          </span>
+                        {p.benefitsStatus && p.benefitsStatus !== "unknown" ? (
+                          <BenefitsBadge status={p.benefitsStatus} short />
                         ) : null}
                       </div>
                     </Link>
@@ -296,10 +295,10 @@ export default function PipelinePage() {
                 <tr className="border-b border-slate-200 bg-slate-50 text-left text-[10px] font-semibold uppercase tracking-[0.1em] text-slate-500">
                   <th className="px-4 py-2.5">Company</th>
                   <th className="px-3 py-2.5">Stage</th>
+                  <th className="px-3 py-2.5 text-right">Employees</th>
+                  <th className="px-3 py-2.5">Current benefits</th>
                   <th className="px-3 py-2.5">Contact</th>
-                  <th className="px-3 py-2.5 text-right">Emp</th>
                   <th className="px-3 py-2.5 text-right">Fit</th>
-                  <th className="px-3 py-2.5 text-right">Value</th>
                   <th className="px-3 py-2.5 text-right">Updated</th>
                   <th className="px-3 py-2.5" />
                 </tr>
@@ -338,19 +337,19 @@ export default function PipelinePage() {
                         </SelectContent>
                       </Select>
                     </td>
+                    <td className="px-3 py-2.5 text-right font-mono text-base font-semibold tabular-nums text-slate-900">
+                      {p.employeeCount ?? "—"}
+                    </td>
+                    <td className="px-3 py-2.5">
+                      <BenefitsBadge status={p.benefitsStatus} short />
+                    </td>
                     <td className="px-3 py-2.5 text-slate-700">
                       {p.contacts[0]?.name ?? (
                         <span className="text-slate-400">—</span>
                       )}
                     </td>
                     <td className="px-3 py-2.5 text-right font-mono tabular-nums text-slate-700">
-                      {p.employeeCount ?? "—"}
-                    </td>
-                    <td className="px-3 py-2.5 text-right font-mono tabular-nums text-slate-700">
                       {p.fitScore != null ? `${p.fitScore}/10` : "—"}
-                    </td>
-                    <td className="px-3 py-2.5 text-right font-mono tabular-nums text-slate-700">
-                      {p.estValueUsd ? formatMoney(p.estValueUsd * 100) : "—"}
                     </td>
                     <td className="px-3 py-2.5 text-right text-[11px] text-slate-400">
                       {timeAgo(p.updatedAt)}

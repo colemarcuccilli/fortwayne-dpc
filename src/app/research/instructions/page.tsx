@@ -167,15 +167,38 @@ export default function ResearchInstructionsPage() {
         </p>
       </Section>
 
-      {/* Estimating value */}
-      <Section icon={Building2} title="Estimating annual value">
-        <p>
-          A rough estimate helps prioritize. Use roughly{" "}
-          <strong>employee count × $79 × 12</strong> as a ballpark PEPM value
-          (assume ~75% of employees enroll if you want to be conservative). For
-          example, a 60-employee company ≈ 45 enrolled × $79 × 12 ≈{" "}
-          <strong>$42,000/yr</strong>. It&rsquo;s an estimate, not a quote —
-          when unsure, leave it blank.
+      {/* Current benefits — the key qualifier */}
+      <Section icon={Building2} title="Their current health benefits (the key qualifier)">
+        <p className="mb-3">
+          This is the single most useful field. Pick the one that matches what
+          you find:
+        </p>
+        <ul className="space-y-2">
+          <Bullet>
+            <strong>No health benefits</strong> — a profitable business that
+            offers its employees nothing. Often the <em>easiest</em> sell:
+            there&rsquo;s nothing to replace, and DPC is a cheap perk that helps
+            them recruit and keep people.
+          </Bullet>
+          <Bullet>
+            <strong>Self-funded</strong> — they pay employee claims directly
+            (look for a TPA, stop-loss insurance, or &ldquo;self-insured&rdquo;
+            language). <em>Best</em> target — DPC directly lowers their claims.
+          </Bullet>
+          <Bullet>
+            <strong>Traditional insurance</strong> — a normal fully-insured
+            plan. Still a good target — DPC paired with a higher-deductible plan
+            cuts their premium.
+          </Bullet>
+          <Bullet>
+            <strong>Unknown</strong> — you couldn&rsquo;t confirm. That&rsquo;s
+            fine; leave it as Unknown rather than guessing.
+          </Bullet>
+        </ul>
+        <p className="mt-3">
+          <strong>Employee count</strong> is the other number that matters most
+          — always try to get it. There is no dollar-value field; don&rsquo;t
+          estimate revenue.
         </p>
       </Section>
 
