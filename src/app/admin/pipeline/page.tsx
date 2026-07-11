@@ -45,7 +45,7 @@ type View = "board" | "list";
 
 export default function PipelinePage() {
   const { state, dispatch } = useAdmin();
-  const [view, setView] = useState<View>("board");
+  const [view, setView] = useState<View>("list");
   const [query, setQuery] = useState("");
   const [stageFilter, setStageFilter] = useState<"all" | PipelineStage>("all");
   const [addOpen, setAddOpen] = useState(false);
