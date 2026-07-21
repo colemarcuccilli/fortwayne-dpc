@@ -7,6 +7,7 @@ import { Phone } from "lucide-react";
 const NAV = [
   { label: "About", href: "/about" },
   { label: "Membership", href: "/membership" },
+  { label: "For Business", href: "/employers" },
   { label: "Weight Loss", href: "/weight-loss" },
   { label: "Aesthetics", href: "/aesthetics" },
   { label: "Patient Form", href: "/patient-form" },
