@@ -1,56 +1,45 @@
 import Link from "next/link";
 import { Logo } from "@/components/brand/logo";
 import { LinkButton } from "@/components/ui/link-button";
-import { PRACTICE } from "@/lib/site-data";
-import { Phone } from "lucide-react";
-
-const NAV = [
-  { label: "About", href: "/about" },
-  { label: "Membership", href: "/membership" },
-  { label: "For Business", href: "/employers" },
-  { label: "Weight Loss", href: "/weight-loss" },
-  { label: "Aesthetics", href: "/aesthetics" },
-  { label: "Patient Form", href: "/patient-form" },
-  { label: "Contact", href: "/contact" },
-];
+import { MobileMenu } from "@/components/brand/mobile-menu";
+import { PUBLIC_NAV } from "@/components/brand/nav-items";
 
 export function Header() {
   return (
     <header className="sticky top-0 z-40 w-full border-b border-border/60 bg-background/85 backdrop-blur">
-      <div className="mx-auto flex h-24 w-full max-w-6xl items-center justify-between px-5 sm:px-8">
+      <div className="mx-auto flex h-24 w-full max-w-6xl items-center justify-between gap-4 px-5 sm:px-8">
         <Link
           href="/"
-          className="inline-flex items-center transition-opacity hover:opacity-80"
+          className="inline-flex shrink-0 items-center transition-opacity hover:opacity-80"
         >
           <Logo height={68} />
         </Link>
 
+        {/* Full nav only where all 7 items fit on one line. */}
         <nav
           aria-label="Primary"
-          className="hidden items-center gap-8 md:flex"
+          className="hidden items-center gap-x-5 lg:flex xl:gap-x-7"
         >
-          {NAV.map((item) => (
+          {PUBLIC_NAV.map((item) => (
             <Link
               key={item.href}
               href={item.href}
-              className="text-sm font-medium text-foreground/70 transition-colors hover:text-brand"
+              className="whitespace-nowrap text-sm font-medium text-foreground/70 transition-colors hover:text-foreground"
             >
               {item.label}
             </Link>
           ))}
         </nav>
 
-        <div className="flex items-center gap-3">
-          <a
-            href={PRACTICE.phoneHref}
-            className="hidden items-center gap-1.5 font-mono text-sm text-muted-foreground transition-colors hover:text-foreground lg:inline-flex"
+        <div className="flex shrink-0 items-center gap-2">
+          <LinkButton
+            href="/contact"
+            size="sm"
+            className="hidden whitespace-nowrap sm:inline-flex"
           >
-            <Phone className="h-3.5 w-3.5" />
-            {PRACTICE.phone}
-          </a>
-          <LinkButton href="/contact" size="sm">
             Book a Meet &amp; Greet
           </LinkButton>
+          <MobileMenu />
         </div>
       </div>
     </header>
