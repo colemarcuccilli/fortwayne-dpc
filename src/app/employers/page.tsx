@@ -1,16 +1,17 @@
 import type { Metadata } from "next";
+import Link from "next/link";
 import { PageHeader } from "@/components/marketing/page-header";
 import { Section, Eyebrow } from "@/components/marketing/section";
 import { CtaBanner } from "@/components/marketing/cta-banner";
 import { SavingsCalculator } from "@/components/marketing/savings-calculator";
 import { LinkButton } from "@/components/ui/link-button";
-import { Check, ArrowRight } from "lucide-react";
-import { EMPLOYERS, EMPLOYER_PRICING } from "@/lib/employer-content";
+import { Check, ArrowRight, Printer } from "lucide-react";
+import { EMPLOYERS } from "@/lib/employer-content";
 
 export const metadata: Metadata = {
-  title: "For Business — Cut healthcare costs without cutting benefits",
+  title: "For Business — Employer Healthcare Partnership | $79/employee/mo",
   description:
-    "Fort Wayne Direct Primary Care for employers. A membership that gives your team unlimited same-day care with no copays — and lowers your company's total healthcare spend. Transparent pricing, local physician.",
+    "Fort Wayne Direct Primary Care for employers. Unlimited same-day physician access for your team at a flat $79 per employee per month — no copays, no deductibles. Fewer ER visits, less absenteeism, a benefit employees actually use.",
 };
 
 export default function EmployersPage() {
@@ -20,9 +21,11 @@ export default function EmployersPage() {
         eyebrow={EMPLOYERS.hero.eyebrow}
         title={
           <>
-            Cut your company&rsquo;s healthcare costs
+            Real healthcare for your team —
             <br />
-            <span className="text-brand-accent">without cutting benefits.</span>
+            <span className="text-brand-accent">
+              for less than a missed workday a month.
+            </span>
           </>
         }
         subtitle={EMPLOYERS.hero.subtitle}
@@ -41,45 +44,84 @@ export default function EmployersPage() {
         </div>
       </Section>
 
-      {/* ---------- Dual promise ---------- */}
+      {/* ---------- The hook ---------- */}
+      <Section className="py-12 md:py-16">
+        <p className="mx-auto max-w-4xl text-center font-heading text-2xl font-semibold leading-snug tracking-tight text-foreground sm:text-3xl md:text-4xl">
+          &ldquo;{EMPLOYERS.hook}&rdquo;
+        </p>
+      </Section>
+
+      {/* ---------- How it works: price + 3 options ---------- */}
       <Section className="py-16 md:py-20">
-        <div className="rounded-3xl bg-brand p-8 text-brand-foreground md:p-14">
-          <div className="max-w-3xl">
-            <span className="text-xs font-semibold uppercase tracking-[0.18em] text-brand-foreground/70">
-              {EMPLOYERS.dualPromise.eyebrow}
-            </span>
-            <h2 className="mt-4 text-3xl font-semibold leading-tight tracking-tight sm:text-4xl md:text-5xl">
-              {EMPLOYERS.dualPromise.title}
+        <div className="grid gap-8 md:grid-cols-[1fr_1.2fr] md:gap-12">
+          <div>
+            <Eyebrow>{EMPLOYERS.howItWorks.eyebrow}</Eyebrow>
+            <h2 className="mt-4 text-3xl font-semibold tracking-tight sm:text-4xl">
+              {EMPLOYERS.howItWorks.title}
             </h2>
-            <p className="mt-5 text-base leading-7 text-brand-foreground/85 md:text-lg">
-              {EMPLOYERS.dualPromise.body}
-            </p>
+            <div className="mt-6 rounded-3xl bg-brand p-8 text-brand-foreground">
+              <div className="flex items-baseline gap-2">
+                <span className="font-mono text-5xl font-bold tracking-tight">
+                  {EMPLOYERS.howItWorks.price.amount}
+                </span>
+                <span className="text-sm font-medium text-brand-foreground/80">
+                  {EMPLOYERS.howItWorks.price.unit}
+                </span>
+              </div>
+              <div className="mt-1 text-sm text-brand-foreground/80">
+                {EMPLOYERS.howItWorks.price.annual}
+              </div>
+              <ul className="mt-5 flex flex-wrap gap-x-4 gap-y-1.5">
+                {EMPLOYERS.howItWorks.price.includes.map((inc) => (
+                  <li key={inc} className="flex items-center gap-1.5 text-sm text-brand-foreground/90">
+                    <Check className="h-3.5 w-3.5 shrink-0 text-brand-accent" />
+                    {inc}
+                  </li>
+                ))}
+              </ul>
+            </div>
+          </div>
+          <div className="grid content-center gap-4">
+            {EMPLOYERS.howItWorks.options.map((opt, i) => (
+              <div
+                key={opt.title}
+                className="rounded-2xl border border-border/70 bg-surface p-6"
+              >
+                <div className="flex items-start gap-4">
+                  <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-brand/10 font-mono text-sm font-semibold text-brand">
+                    {i + 1}
+                  </span>
+                  <div>
+                    <h3 className="text-base font-semibold tracking-tight text-foreground">
+                      {opt.title}
+                    </h3>
+                    <p className="mt-1 text-sm leading-6 text-muted-foreground">
+                      {opt.body}
+                    </p>
+                  </div>
+                </div>
+              </div>
+            ))}
           </div>
         </div>
       </Section>
 
-      {/* ---------- Who gets what ---------- */}
+      {/* ---------- What's included ---------- */}
       <Section className="py-16 md:py-20">
         <div className="mb-10 max-w-2xl">
-          <Eyebrow>{EMPLOYERS.whoGetsWhat.eyebrow}</Eyebrow>
+          <Eyebrow>{EMPLOYERS.included.eyebrow}</Eyebrow>
           <h2 className="mt-4 text-3xl font-semibold tracking-tight sm:text-4xl">
-            Everyone comes out ahead.
+            {EMPLOYERS.included.title}
           </h2>
         </div>
         <div className="grid gap-6 md:grid-cols-3">
-          {EMPLOYERS.whoGetsWhat.columns.map((col, i) => (
-            <div
-              key={col.title}
-              className="rounded-3xl border border-border/70 bg-surface p-7"
-            >
-              <div className="font-mono text-[11px] font-semibold uppercase tracking-[0.16em] text-brand-accent">
-                0{i + 1}
-              </div>
-              <h3 className="mt-3 text-lg font-semibold tracking-tight text-foreground">
-                {col.title}
+          {EMPLOYERS.included.groups.map((g) => (
+            <div key={g.title} className="rounded-3xl border border-border/70 bg-surface p-7">
+              <h3 className="text-sm font-semibold uppercase tracking-[0.14em] text-brand-accent">
+                {g.title}
               </h3>
               <ul className="mt-4 space-y-2.5">
-                {col.items.map((item) => (
+                {g.items.map((item) => (
                   <li key={item} className="flex items-start gap-2.5 text-sm">
                     <Check className="mt-0.5 h-4 w-4 shrink-0 text-brand" />
                     <span className="text-foreground/85">{item}</span>
@@ -91,151 +133,102 @@ export default function EmployersPage() {
         </div>
       </Section>
 
-      {/* ---------- Two buyer types ---------- */}
+      {/* ---------- ROI: the hidden costs ---------- */}
       <Section className="py-16 md:py-20">
-        <div className="mb-10 max-w-2xl">
-          <Eyebrow>{EMPLOYERS.buyerTypes.eyebrow}</Eyebrow>
-          <h2 className="mt-4 text-3xl font-semibold tracking-tight sm:text-4xl">
-            {EMPLOYERS.buyerTypes.title}
-          </h2>
-        </div>
-        <div className="grid gap-6 md:grid-cols-2">
-          {EMPLOYERS.buyerTypes.cards.map((card) => (
-            <div
-              key={card.tag}
-              className="flex flex-col rounded-3xl border border-border/70 bg-surface p-8"
-            >
-              <span className="inline-flex w-fit rounded-full bg-brand-muted px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.12em] text-brand">
-                {card.tag}
-              </span>
-              <h3 className="mt-4 text-xl font-semibold tracking-tight text-foreground">
-                {card.title}
-              </h3>
-              <p className="mt-3 flex-1 text-sm leading-6 text-muted-foreground">
-                {card.body}
-              </p>
-              <div className="mt-5 border-t border-border/60 pt-4 text-sm font-semibold text-brand-accent">
-                {card.highlight}
-              </div>
-            </div>
-          ))}
-        </div>
-      </Section>
-
-      {/* ---------- Mechanism / where savings come from ---------- */}
-      <Section className="py-16 md:py-20">
-        <div className="mb-10 max-w-2xl">
-          <Eyebrow>{EMPLOYERS.mechanism.eyebrow}</Eyebrow>
-          <h2 className="mt-4 text-3xl font-semibold tracking-tight sm:text-4xl">
-            {EMPLOYERS.mechanism.title}
-          </h2>
-          <p className="mt-4 text-muted-foreground">{EMPLOYERS.mechanism.body}</p>
+        <div className="mb-10 flex flex-wrap items-end justify-between gap-4">
+          <div className="max-w-2xl">
+            <Eyebrow>{EMPLOYERS.roi.eyebrow}</Eyebrow>
+            <h2 className="mt-4 text-3xl font-semibold tracking-tight sm:text-4xl">
+              {EMPLOYERS.roi.title}
+            </h2>
+            <p className="mt-4 text-muted-foreground">{EMPLOYERS.roi.subtitle}</p>
+          </div>
+          <LinkButton href="/employers/roi" variant="outline" size="md">
+            <Printer className="h-4 w-4" />
+            Printable ROI sheet
+          </LinkButton>
         </div>
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-          {EMPLOYERS.mechanism.points.map((p) => (
-            <div
-              key={p.label}
-              className="rounded-2xl border border-border/70 bg-surface p-6"
-            >
-              <div className="font-mono text-2xl font-bold tracking-tight text-brand">
-                {p.stat}
+          {EMPLOYERS.roi.hiddenCosts.map((c) => (
+            <div key={c.label} className="rounded-2xl border border-border/70 bg-surface p-6">
+              <div className="text-sm font-medium text-foreground">{c.label}</div>
+              <div className="mt-2 font-mono text-2xl font-bold tracking-tight text-brand-accent">
+                {c.amount}
               </div>
-              <div className="mt-2 text-sm font-medium text-foreground">
-                {p.label}
-              </div>
-              <div className="mt-1.5 text-xs leading-5 text-muted-foreground">
-                {p.detail}
+              <div className="mt-2 text-xs leading-5 text-muted-foreground">
+                {c.detail}
               </div>
             </div>
           ))}
         </div>
-        <p className="mt-6 rounded-2xl border border-border/60 bg-brand-muted/40 p-5 text-sm leading-6 text-foreground/80">
-          {EMPLOYERS.mechanism.honesty}
+        <p className="mt-6 rounded-2xl bg-brand-muted/40 p-5 text-sm leading-6 text-foreground/80">
+          {EMPLOYERS.roi.exampleNote}
         </p>
       </Section>
 
-      {/* ---------- The calculator (centerpiece) ---------- */}
+      {/* ---------- Calculator ---------- */}
       <Section id="estimate" className="scroll-mt-24 py-16 md:py-20">
         <div className="mb-8 max-w-2xl">
-          <Eyebrow>Your personal opportunity</Eyebrow>
+          <Eyebrow>Your numbers</Eyebrow>
           <h2 className="mt-4 text-3xl font-semibold tracking-tight sm:text-4xl">
-            See your company&rsquo;s number.
+            See your company&rsquo;s ROI.
           </h2>
           <p className="mt-4 text-muted-foreground">
-            Enter three quick numbers for a transparent, conservative estimate
-            of what direct primary care could do for your bottom line — with
-            every assumption shown.
+            Enter your headcount and the costs you could realistically avoid.
+            Every assumption is shown and adjustable — no hype.
           </p>
         </div>
         <SavingsCalculator />
       </Section>
 
-      {/* ---------- Transparent pricing ---------- */}
+      {/* ---------- Ideal groups ---------- */}
       <Section className="py-16 md:py-20">
-        <div className="rounded-3xl border border-border/70 bg-surface p-8 md:p-12">
-          <div className="grid gap-10 md:grid-cols-[1fr_1.1fr]">
-            <div>
-              <Eyebrow>Transparent pricing</Eyebrow>
-              <h2 className="mt-4 text-3xl font-semibold tracking-tight sm:text-4xl">
-                We publish our price.
-              </h2>
-              <p className="mt-4 text-sm leading-6 text-muted-foreground">
-                {EMPLOYER_PRICING.note}
-              </p>
-              <p className="mt-3 text-xs text-muted-foreground/80">
-                {EMPLOYER_PRICING.disclaimer}
-              </p>
-            </div>
-            <div className="space-y-3">
-              {EMPLOYER_PRICING.tiers.map((t) => (
-                <div
-                  key={t.label}
-                  className="flex items-baseline justify-between rounded-2xl border border-border/70 bg-background p-5"
-                >
-                  <div className="text-sm font-medium text-foreground">
-                    {t.label}
-                    {t.note && (
-                      <span className="ml-1.5 text-xs text-muted-foreground">
-                        ({t.note})
-                      </span>
-                    )}
-                  </div>
-                  <div className="font-mono text-2xl font-bold tabular-nums text-brand">
-                    {t.price}
-                    <span className="text-sm font-medium text-muted-foreground">
-                      {t.unit}
-                    </span>
-                  </div>
-                </div>
-              ))}
-            </div>
+        <div className="rounded-3xl bg-brand/5 p-8 md:p-12">
+          <div className="max-w-2xl">
+            <Eyebrow>{EMPLOYERS.idealGroups.eyebrow}</Eyebrow>
+            <h2 className="mt-4 text-3xl font-semibold tracking-tight sm:text-4xl">
+              {EMPLOYERS.idealGroups.title}
+            </h2>
+            <p className="mt-3 text-muted-foreground">
+              {EMPLOYERS.idealGroups.subtitle}
+            </p>
+          </div>
+          <div className="mt-6 flex flex-wrap gap-2.5">
+            {EMPLOYERS.idealGroups.groups.map((g) => (
+              <span
+                key={g}
+                className="rounded-full border border-border/70 bg-surface px-4 py-2 text-sm font-medium text-foreground/85"
+              >
+                {g}
+              </span>
+            ))}
           </div>
         </div>
       </Section>
 
-      {/* ---------- Trust ---------- */}
+      {/* ---------- Benefits grid ---------- */}
       <Section className="py-16 md:py-20">
         <div className="mb-10 max-w-2xl">
-          <Eyebrow>{EMPLOYERS.trust.eyebrow}</Eyebrow>
+          <Eyebrow>{EMPLOYERS.benefits.eyebrow}</Eyebrow>
           <h2 className="mt-4 text-3xl font-semibold tracking-tight sm:text-4xl">
-            {EMPLOYERS.trust.title}
+            {EMPLOYERS.benefits.title}
           </h2>
         </div>
-        <div className="grid gap-6 md:grid-cols-3">
-          {EMPLOYERS.trust.points.map((p) => (
-            <div key={p.title} className="rounded-3xl bg-brand/5 p-7">
-              <h3 className="text-lg font-semibold tracking-tight text-foreground">
-                {p.title}
+        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+          {EMPLOYERS.benefits.items.map((b) => (
+            <div key={b.title} className="rounded-2xl border border-border/70 bg-surface p-6">
+              <h3 className="text-base font-semibold tracking-tight text-foreground">
+                {b.title}
               </h3>
-              <p className="mt-2.5 text-sm leading-6 text-muted-foreground">
-                {p.body}
+              <p className="mt-1.5 text-sm leading-6 text-muted-foreground">
+                {b.body}
               </p>
             </div>
           ))}
         </div>
       </Section>
 
-      {/* ---------- Weight-loss add-on ---------- */}
+      {/* ---------- Wellness add-on ---------- */}
       <Section className="py-16 md:py-20">
         <div className="grid items-center gap-8 rounded-3xl bg-brand-accent-muted p-8 md:grid-cols-[1.3fr_1fr] md:p-12">
           <div>
@@ -248,15 +241,61 @@ export default function EmployersPage() {
             </p>
           </div>
           <div className="md:text-right">
-            <LinkButton
-              href={EMPLOYERS.wellnessAddon.cta.href}
-              variant="brand"
-              size="lg"
-            >
+            <LinkButton href={EMPLOYERS.wellnessAddon.cta.href} variant="brand" size="lg">
               {EMPLOYERS.wellnessAddon.cta.label}
               <ArrowRight className="h-4 w-4" />
             </LinkButton>
           </div>
+        </div>
+      </Section>
+
+      {/* ---------- Getting started ---------- */}
+      <Section className="py-16 md:py-20">
+        <div className="mb-10 max-w-2xl">
+          <Eyebrow>{EMPLOYERS.steps.eyebrow}</Eyebrow>
+          <h2 className="mt-4 text-3xl font-semibold tracking-tight sm:text-4xl">
+            {EMPLOYERS.steps.title}
+          </h2>
+        </div>
+        <div className="grid gap-6 md:grid-cols-3">
+          {EMPLOYERS.steps.steps.map((s) => (
+            <div key={s.n} className="rounded-2xl border border-border/70 bg-surface p-7">
+              <div className="font-mono text-[11px] font-semibold tracking-[0.16em] text-brand-accent">
+                {s.n}
+              </div>
+              <h3 className="mt-3 text-base font-semibold tracking-tight text-foreground">
+                {s.title}
+              </h3>
+              <p className="mt-2 text-sm leading-6 text-muted-foreground">
+                {s.body}
+              </p>
+            </div>
+          ))}
+        </div>
+      </Section>
+
+      {/* ---------- FAQ ---------- */}
+      <Section className="py-16 md:py-20">
+        <div className="mb-10 max-w-2xl">
+          <Eyebrow>{EMPLOYERS.faq.eyebrow}</Eyebrow>
+          <h2 className="mt-4 text-3xl font-semibold tracking-tight sm:text-4xl">
+            {EMPLOYERS.faq.title}
+          </h2>
+        </div>
+        <div className="mx-auto max-w-3xl divide-y divide-border/60 rounded-3xl border border-border/70 bg-surface">
+          {EMPLOYERS.faq.items.map((f) => (
+            <details key={f.q} className="group px-6 py-5">
+              <summary className="flex cursor-pointer items-center justify-between gap-4 text-sm font-semibold text-foreground marker:content-none">
+                {f.q}
+                <span className="text-brand transition-transform group-open:rotate-45">
+                  +
+                </span>
+              </summary>
+              <p className="mt-3 text-sm leading-6 text-muted-foreground">
+                {f.a}
+              </p>
+            </details>
+          ))}
         </div>
       </Section>
 
@@ -267,7 +306,7 @@ export default function EmployersPage() {
           title={EMPLOYERS.finalCta.title}
           body={EMPLOYERS.finalCta.body}
           primaryCta={EMPLOYERS.finalCta.primaryCta}
-          secondaryCta={{ label: "Get your estimate first", href: "#estimate" }}
+          secondaryCta={{ label: "See the ROI sheet", href: "/employers/roi" }}
         />
       </Section>
     </>

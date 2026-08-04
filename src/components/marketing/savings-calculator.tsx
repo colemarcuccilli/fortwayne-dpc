@@ -7,11 +7,9 @@ import { Button } from "@/components/ui/button";
 import { Check, Info, Send } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { saveSubmissionLocal } from "@/lib/admin/public-submission";
-import {
-  EMPLOYER_ECONOMICS,
-  PLAN_TYPE_OPTIONS,
-  type EmployerPlanType,
-} from "@/lib/employer-content";
+import { EMPLOYER_ECONOMICS } from "@/lib/employer-content";
+
+const E = EMPLOYER_ECONOMICS;
 
 function money(n: number): string {
   return new Intl.NumberFormat("en-US", {
@@ -22,20 +20,28 @@ function money(n: number): string {
 }
 
 /**
- * The "Personal Opportunity" savings model — the killer lead asset.
- * Inputs on the left, live transparent output on the right. Submitting
- * the contact block sends an employer inquiry (with the modeled numbers)
- * into the admin inbox / pipeline.
+ * Employer ROI calculator — the avoided-cost model from the program doc.
  *
- * The math is deliberately conservative and its assumptions are shown
- * openly so a skeptical CFO can trust it.
+ * Investment = employees × $79 × 12. Potential savings = the downstream
+ * costs the membership heads off (urgent care, ER, missed workdays,
+ * turnover), each with a transparent per-unit cost the employer can
+ * adjust. Honest: it's labeled "potential," every input is theirs, and
+ * the assumptions are shown. Submitting sends an employer inquiry into
+ * the admin inbox with the modeled numbers attached.
  */
 export function SavingsCalculator() {
-  const [employees, setEmployees] = useState("50");
-  const [planType, setPlanType] = useState<EmployerPlanType>("self_funded");
-  const [spendPerEmployee, setSpendPerEmployee] = useState(
-    String(EMPLOYER_ECONOMICS.defaultSpendPerEmployee),
+  const [employees, setEmployees] = useState("20");
+
+  // Avoidable events per year (prefilled from per-employee defaults, editable)
+  const n0 = 20;
+  const [urgent, setUrgent] = useState(
+    String(Math.round(n0 * E.defaultUrgentCarePerEmp)),
   );
+  const [er, setEr] = useState(String(Math.round(n0 * E.defaultErPerEmp)));
+  const [workdays, setWorkdays] = useState(
+    String(Math.round(n0 * E.defaultWorkdaysPerEmp)),
+  );
+  const [turnover, setTurnover] = useState("1");
 
   const [name, setName] = useState("");
   const [company, setCompany] = useState("");
@@ -43,19 +49,17 @@ export function SavingsCalculator() {
   const [phone, setPhone] = useState("");
   const [submitted, setSubmitted] = useState(false);
 
-  const model = useMemo(() => {
+  const m = useMemo(() => {
     const n = Math.max(0, Number(employees) || 0);
-    const perEmp = Math.max(0, Number(spendPerEmployee) || 0);
-    const pepm = EMPLOYER_ECONOMICS.pepm;
-    const rate = EMPLOYER_ECONOMICS.reduction[planType];
-
-    const currentTotal = n * perEmp;
-    const dpcCost = n * pepm * 12;
-    const netSavings = currentTotal * rate; // already net of the DPC fee
-    const roi = dpcCost > 0 ? netSavings / dpcCost : 0;
-
-    return { n, perEmp, pepm, rate, currentTotal, dpcCost, netSavings, roi };
-  }, [employees, planType, spendPerEmployee]);
+    const investment = n * E.pepm * 12;
+    const uc = Math.max(0, Number(urgent) || 0) * E.costPerUrgentCare;
+    const erc = Math.max(0, Number(er) || 0) * E.costPerErVisit;
+    const wd = Math.max(0, Number(workdays) || 0) * E.costPerMissedWorkday;
+    const to = Math.max(0, Number(turnover) || 0) * E.costPerTurnover;
+    const savings = uc + erc + wd + to;
+    const net = savings - investment;
+    return { n, investment, uc, erc, wd, to, savings, net };
+  }, [employees, urgent, er, workdays, turnover]);
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -64,23 +68,21 @@ export function SavingsCalculator() {
       name: name.trim() || company.trim() || "Employer inquiry",
       email: email.trim() || undefined,
       phone: phone.trim() || undefined,
-      subject: `Savings estimate — ${company.trim() || "company"} (${model.n} employees)`,
-      message: `Requested a custom savings estimate.`,
+      subject: `Employer ROI request — ${company.trim() || "company"} (${m.n} employees)`,
+      message: "Requested a custom employer ROI estimate from the website.",
       meta: {
         company: company.trim(),
-        employees: model.n,
-        planType,
-        currentSpendPerEmployee: model.perEmp,
-        modeledCurrentTotal: model.currentTotal,
-        modeledDpcCost: model.dpcCost,
-        modeledNetSavings: Math.round(model.netSavings),
-        modeledRoi: `${Math.round(model.roi * 100)}%`,
+        employees: m.n,
+        annualInvestment: m.investment,
+        avoidedUrgentCare: Number(urgent) || 0,
+        avoidedErVisits: Number(er) || 0,
+        avoidedWorkdays: Number(workdays) || 0,
+        retainedEmployees: Number(turnover) || 0,
+        potentialSavings: Math.round(m.savings),
       },
     });
     setSubmitted(true);
   }
-
-  const rangeLabel = EMPLOYER_ECONOMICS.reductionRangeLabel[planType];
 
   return (
     <div className="overflow-hidden rounded-3xl border border-border/70 bg-surface">
@@ -91,11 +93,8 @@ export function SavingsCalculator() {
             Your company
           </div>
           <h3 className="mt-2 text-xl font-semibold tracking-tight text-foreground">
-            Estimate your opportunity
+            Estimate your ROI
           </h3>
-          <p className="mt-1 text-sm text-muted-foreground">
-            Three numbers. The estimate updates as you type.
-          </p>
 
           <div className="mt-6 space-y-5">
             <div className="space-y-2">
@@ -109,46 +108,39 @@ export function SavingsCalculator() {
               />
             </div>
 
-            <div className="space-y-2">
-              <Label>How do you fund healthcare today?</Label>
-              <div className="grid grid-cols-2 gap-2">
-                {PLAN_TYPE_OPTIONS.map((opt) => (
-                  <button
-                    key={opt.value}
-                    type="button"
-                    onClick={() => setPlanType(opt.value)}
-                    className={cn(
-                      "rounded-lg border px-3 py-2 text-left text-sm transition-colors",
-                      planType === opt.value
-                        ? "border-brand bg-brand/5 font-medium text-foreground"
-                        : "border-border bg-background text-muted-foreground hover:border-brand/40",
-                    )}
-                  >
-                    {opt.label}
-                  </button>
-                ))}
+            <div className="rounded-xl border border-border/60 bg-background p-4">
+              <div className="text-[11px] font-semibold uppercase tracking-[0.14em] text-muted-foreground">
+                Costs you could avoid in a year
               </div>
-              <p className="text-xs text-muted-foreground">
-                {PLAN_TYPE_OPTIONS.find((o) => o.value === planType)?.hint}
+              <p className="mt-1 text-xs text-muted-foreground">
+                Prefilled with conservative estimates — adjust to your team.
               </p>
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="calc-spend">
-                Current healthcare cost per employee / year
-              </Label>
-              <Input
-                id="calc-spend"
-                type="number"
-                min={0}
-                step={500}
-                value={spendPerEmployee}
-                onChange={(e) => setSpendPerEmployee(e.target.value)}
-              />
-              <p className="text-xs text-muted-foreground">
-                Not sure? Employer cost commonly runs $8,000–$12,000 per
-                employee. Adjust to your real number for a better estimate.
-              </p>
+              <div className="mt-4 space-y-3">
+                <MiniField
+                  label="Urgent-care visits avoided"
+                  hint={`× ${money(E.costPerUrgentCare)} each`}
+                  value={urgent}
+                  onChange={setUrgent}
+                />
+                <MiniField
+                  label="ER visits avoided"
+                  hint={`× ${money(E.costPerErVisit)} each`}
+                  value={er}
+                  onChange={setEr}
+                />
+                <MiniField
+                  label="Missed workdays avoided"
+                  hint={`× ${money(E.costPerMissedWorkday)} each`}
+                  value={workdays}
+                  onChange={setWorkdays}
+                />
+                <MiniField
+                  label="Employees retained"
+                  hint={`× ${money(E.costPerTurnover)} each`}
+                  value={turnover}
+                  onChange={setTurnover}
+                />
+              </div>
             </div>
           </div>
         </div>
@@ -156,45 +148,64 @@ export function SavingsCalculator() {
         {/* ---------- Output ---------- */}
         <div className="bg-brand-muted/40 p-6 sm:p-8">
           <div className="text-xs font-semibold uppercase tracking-[0.16em] text-brand">
-            Your estimated opportunity
+            Your estimate
           </div>
 
-          <div className="mt-4 rounded-2xl bg-brand p-5 text-brand-foreground">
-            <div className="text-xs font-medium uppercase tracking-[0.14em] text-brand-foreground/70">
-              Projected net annual savings
+          <div className="mt-4 grid grid-cols-2 gap-3">
+            <div className="rounded-2xl border border-border/60 bg-surface p-4">
+              <div className="text-[11px] font-medium uppercase tracking-[0.12em] text-muted-foreground">
+                Annual investment
+              </div>
+              <div className="mt-1 font-mono text-2xl font-bold tabular-nums text-foreground">
+                {money(m.investment)}
+              </div>
+              <div className="mt-0.5 text-[11px] text-muted-foreground">
+                {m.n} × $79/mo
+              </div>
             </div>
-            <div className="mt-1 font-mono text-4xl font-bold tabular-nums">
-              {money(model.netSavings)}
-            </div>
-            <div className="mt-1 text-xs text-brand-foreground/80">
-              Modeled at a conservative {Math.round(model.rate * 100)}% total-cost
-              reduction ({rangeLabel} typical for this plan type).
+            <div className="rounded-2xl bg-brand p-4 text-brand-foreground">
+              <div className="text-[11px] font-medium uppercase tracking-[0.12em] text-brand-foreground/70">
+                Potential savings
+              </div>
+              <div className="mt-1 font-mono text-2xl font-bold tabular-nums">
+                {money(m.savings)}
+              </div>
+              <div className="mt-0.5 text-[11px] text-brand-foreground/80">
+                costs headed off
+              </div>
             </div>
           </div>
 
-          <dl className="mt-5 space-y-3 text-sm">
-            <Row
-              label="Your current healthcare spend"
-              value={money(model.currentTotal)}
-            />
-            <Row
-              label={`DPC cost (${model.n} × $${model.pepm}/mo)`}
-              value={money(model.dpcCost)}
-              sub="transparent, no hidden fees"
-            />
-            <div className="border-t border-border/60 pt-3">
-              <Row
-                label="Return on the DPC investment"
-                value={`${Math.round(model.roi * 100)}%`}
-                strong
-              />
-            </div>
+          <dl className="mt-4 space-y-2 rounded-2xl border border-border/60 bg-surface p-4 text-sm">
+            <Row label="Urgent-care visits avoided" value={money(m.uc)} />
+            <Row label="ER visits avoided" value={money(m.erc)} />
+            <Row label="Missed workdays avoided" value={money(m.wd)} />
+            <Row label="Turnover avoided" value={money(m.to)} />
           </dl>
 
-          {/* Better-benefit column */}
-          <div className="mt-5 rounded-xl border border-border/60 bg-surface p-4">
+          {m.net >= 0 ? (
+            <div className="mt-3 rounded-xl bg-brand/5 px-4 py-3 text-sm text-foreground">
+              Estimated to <strong>offset the full cost and then some</strong> —
+              about <strong>{money(m.net)}</strong> ahead, before counting a
+              healthier, more productive team.
+            </div>
+          ) : (
+            <div className="mt-3 rounded-xl bg-brand/5 px-4 py-3 text-sm text-foreground">
+              These avoided costs cover about{" "}
+              <strong>
+                {m.investment > 0
+                  ? Math.round((m.savings / m.investment) * 100)
+                  : 0}
+                %
+              </strong>{" "}
+              of the investment — and your team still gets unlimited same-day
+              care they&rsquo;ll actually use.
+            </div>
+          )}
+
+          <div className="mt-4 rounded-xl border border-border/60 bg-surface p-4">
             <div className="text-[11px] font-semibold uppercase tracking-[0.14em] text-brand-accent">
-              And your team gets
+              And every employee gets
             </div>
             <ul className="mt-2 grid grid-cols-1 gap-1.5 sm:grid-cols-2">
               {[
@@ -213,10 +224,10 @@ export function SavingsCalculator() {
 
           <p className="mt-4 flex items-start gap-1.5 text-[11px] leading-5 text-muted-foreground">
             <Info className="mt-0.5 h-3 w-3 shrink-0" />
-            Estimate only, shown with its assumptions. Savings come from
-            pairing DPC with a suitable plan design; your real result depends
-            on your plan and utilization. We&rsquo;ll model it against your
-            actual data on the call.
+            A transparent estimate you control — not a guarantee. Higher-
+            utilization workforces (manufacturing, trades, logistics) typically
+            avoid far more. We&rsquo;ll refine it against your real numbers on
+            the call.
           </p>
         </div>
       </div>
@@ -230,11 +241,11 @@ export function SavingsCalculator() {
             </span>
             <div>
               <div className="text-sm font-semibold text-foreground">
-                Got it — we&rsquo;ll send your one-page estimate.
+                Got it — we&rsquo;ll be in touch.
               </div>
               <p className="mt-1 text-sm text-muted-foreground">
                 We&rsquo;ll follow up within one business day to confirm your
-                numbers and book a 15-minute consult.
+                numbers and set up a 15-minute consult.
               </p>
             </div>
           </div>
@@ -242,59 +253,34 @@ export function SavingsCalculator() {
           <form onSubmit={handleSubmit}>
             <div className="mb-4">
               <h3 className="text-lg font-semibold tracking-tight text-foreground">
-                Get this as a one-page report
+                Want this tailored to your team?
               </h3>
               <p className="text-sm text-muted-foreground">
-                We&rsquo;ll tailor it to your real numbers and send it over —
-                no obligation.
+                Send it over and we&rsquo;ll build your ROI on your real
+                numbers — no obligation.
               </p>
             </div>
             <div className="grid gap-4 sm:grid-cols-2">
               <div className="space-y-2">
                 <Label htmlFor="calc-name">Your name</Label>
-                <Input
-                  id="calc-name"
-                  value={name}
-                  onChange={(e) => setName(e.target.value)}
-                  required
-                />
+                <Input id="calc-name" value={name} onChange={(e) => setName(e.target.value)} required />
               </div>
               <div className="space-y-2">
                 <Label htmlFor="calc-company">Company</Label>
-                <Input
-                  id="calc-company"
-                  value={company}
-                  onChange={(e) => setCompany(e.target.value)}
-                  required
-                />
+                <Input id="calc-company" value={company} onChange={(e) => setCompany(e.target.value)} required />
               </div>
               <div className="space-y-2">
                 <Label htmlFor="calc-email">Email</Label>
-                <Input
-                  id="calc-email"
-                  type="email"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  required
-                />
+                <Input id="calc-email" type="email" value={email} onChange={(e) => setEmail(e.target.value)} required />
               </div>
               <div className="space-y-2">
                 <Label htmlFor="calc-phone">Phone</Label>
-                <Input
-                  id="calc-phone"
-                  type="tel"
-                  value={phone}
-                  onChange={(e) => setPhone(e.target.value)}
-                />
+                <Input id="calc-phone" type="tel" value={phone} onChange={(e) => setPhone(e.target.value)} />
               </div>
             </div>
-            <Button
-              type="submit"
-              size="lg"
-              className="mt-5 bg-brand text-brand-foreground hover:bg-brand/90"
-            >
+            <Button type="submit" size="lg" className="mt-5 bg-brand text-brand-foreground hover:bg-brand/90">
               <Send className="mr-1.5 h-4 w-4" />
-              Send me my savings estimate
+              Send me my ROI estimate
             </Button>
           </form>
         )}
@@ -303,29 +289,39 @@ export function SavingsCalculator() {
   );
 }
 
-function Row({
+function MiniField({
   label,
+  hint,
   value,
-  sub,
-  strong,
+  onChange,
 }: {
   label: string;
+  hint: string;
   value: string;
-  sub?: string;
-  strong?: boolean;
+  onChange: (v: string) => void;
 }) {
   return (
+    <div className="flex items-center justify-between gap-3">
+      <div className="min-w-0">
+        <div className="truncate text-sm text-foreground/90">{label}</div>
+        <div className="text-[11px] text-muted-foreground">{hint}</div>
+      </div>
+      <Input
+        type="number"
+        min={0}
+        value={value}
+        onChange={(e) => onChange(e.target.value)}
+        className="h-9 w-20 shrink-0 text-right"
+      />
+    </div>
+  );
+}
+
+function Row({ label, value }: { label: string; value: string }) {
+  return (
     <div className="flex items-baseline justify-between gap-4">
-      <dt className={cn("text-muted-foreground", strong && "font-semibold text-foreground")}>
-        {label}
-        {sub && <span className="block text-[11px] text-muted-foreground/80">{sub}</span>}
-      </dt>
-      <dd
-        className={cn(
-          "shrink-0 font-mono tabular-nums text-foreground",
-          strong ? "text-lg font-bold text-brand" : "font-semibold",
-        )}
-      >
+      <dt className="text-muted-foreground">{label}</dt>
+      <dd className="shrink-0 font-mono font-semibold tabular-nums text-foreground">
         {value}
       </dd>
     </div>
