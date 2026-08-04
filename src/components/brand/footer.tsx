@@ -82,7 +82,7 @@ export function Footer() {
               <li key={h.day} className="flex justify-between gap-3">
                 <span>{h.day.slice(0, 3)}</span>
                 <span className="tabular-nums">
-                  {h.open.replace(":00", "")} – {h.close.replace(":00", "")}
+                  {h.open.replace(":00", "")} to {h.close.replace(":00", "")}
                 </span>
               </li>
             ))}

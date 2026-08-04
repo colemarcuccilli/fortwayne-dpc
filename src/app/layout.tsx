@@ -17,16 +17,16 @@ const geistMono = Geist_Mono({
 
 export const metadata: Metadata = {
   title: {
-    default: "Fort Wayne Direct Primary Care — Personalized care, no insurance",
+    default: "Fort Wayne Direct Primary Care, Personalized care, no insurance",
     template: "%s | Fort Wayne Direct Primary Care",
   },
   description:
-    "Personalized primary care in Fort Wayne, Indiana. Direct access to your physician for a flat monthly fee — no copays, no waiting rooms, unlimited visits.",
+    "Personalized primary care in Fort Wayne, Indiana. Direct access to your physician for a flat monthly fee, no copays, no waiting rooms, unlimited visits.",
   metadataBase: new URL("https://fortwaynedpc.com"),
   openGraph: {
     title: "Fort Wayne Direct Primary Care",
     description:
-      "Personalized primary care in Fort Wayne, Indiana. One flat monthly fee — no copays, no waiting rooms.",
+      "Personalized primary care in Fort Wayne, Indiana. One flat monthly fee, no copays, no waiting rooms.",
     url: "https://fortwaynedpc.com",
     siteName: "Fort Wayne Direct Primary Care",
     type: "website",
