@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import Link from "next/link";
+import Image from "next/image";
 import { PageHeader } from "@/components/marketing/page-header";
 import { Section, Eyebrow } from "@/components/marketing/section";
 import { CtaBanner } from "@/components/marketing/cta-banner";
@@ -9,22 +9,24 @@ import { Check, ArrowRight, Printer } from "lucide-react";
 import { EMPLOYERS } from "@/lib/employer-content";
 
 export const metadata: Metadata = {
-  title: "For Business — Employer Healthcare Partnership | $79/employee/mo",
+  title: "For Business, Employer Healthcare Partnership | $79/employee/mo",
   description:
-    "Fort Wayne Direct Primary Care for employers. Unlimited same-day physician access for your team at a flat $79 per employee per month — no copays, no deductibles. Fewer ER visits, less absenteeism, a benefit employees actually use.",
+    "Fort Wayne Direct Primary Care for employers. Unlimited same-day physician access for your team at a flat $79 per employee per month, no copays, no deductibles. Fewer ER visits, less absenteeism, a benefit employees actually use.",
 };
+
+const H2 = "mt-4 text-balance text-3xl font-semibold tracking-tight sm:text-4xl";
 
 export default function EmployersPage() {
   return (
     <>
       <PageHeader
         eyebrow={EMPLOYERS.hero.eyebrow}
+        titleClassName="text-3xl sm:text-4xl md:text-5xl"
         title={
           <>
-            Real healthcare for your team —
-            <br />
+            {EMPLOYERS.hero.title}{" "}
             <span className="text-brand-accent">
-              for less than a missed workday a month.
+              {EMPLOYERS.hero.titleAccent}
             </span>
           </>
         }
@@ -44,11 +46,22 @@ export default function EmployersPage() {
         </div>
       </Section>
 
-      {/* ---------- The hook ---------- */}
-      <Section className="py-12 md:py-16">
-        <p className="mx-auto max-w-4xl text-center font-heading text-2xl font-semibold leading-snug tracking-tight text-foreground sm:text-3xl md:text-4xl">
-          &ldquo;{EMPLOYERS.hook}&rdquo;
-        </p>
+      {/* ---------- The hook + image ---------- */}
+      <Section className="py-14 md:py-20">
+        <div className="grid items-center gap-10 md:grid-cols-[1.2fr_1fr]">
+          <p className="text-balance font-heading text-2xl font-semibold leading-snug tracking-tight text-foreground sm:text-3xl md:text-4xl">
+            &ldquo;{EMPLOYERS.hook}&rdquo;
+          </p>
+          <div className="relative aspect-[4/3] overflow-hidden rounded-3xl">
+            <Image
+              src="/assets/DoctorTalkingtoPatientNopatientVertical.jpg"
+              alt="Dr. Aluri talking with a patient"
+              fill
+              sizes="(max-width: 768px) 100vw, 40vw"
+              className="object-cover"
+            />
+          </div>
+        </div>
       </Section>
 
       {/* ---------- How it works: price + 3 options ---------- */}
@@ -56,9 +69,7 @@ export default function EmployersPage() {
         <div className="grid gap-8 md:grid-cols-[1fr_1.2fr] md:gap-12">
           <div>
             <Eyebrow>{EMPLOYERS.howItWorks.eyebrow}</Eyebrow>
-            <h2 className="mt-4 text-3xl font-semibold tracking-tight sm:text-4xl">
-              {EMPLOYERS.howItWorks.title}
-            </h2>
+            <h2 className={H2}>{EMPLOYERS.howItWorks.title}</h2>
             <div className="mt-6 rounded-3xl bg-brand p-8 text-brand-foreground">
               <div className="flex items-baseline gap-2">
                 <span className="font-mono text-5xl font-bold tracking-tight">
@@ -83,10 +94,7 @@ export default function EmployersPage() {
           </div>
           <div className="grid content-center gap-4">
             {EMPLOYERS.howItWorks.options.map((opt, i) => (
-              <div
-                key={opt.title}
-                className="rounded-2xl border border-border/70 bg-surface p-6"
-              >
+              <div key={opt.title} className="rounded-2xl border border-border/70 bg-surface p-6">
                 <div className="flex items-start gap-4">
                   <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-brand/10 font-mono text-sm font-semibold text-brand">
                     {i + 1}
@@ -110,9 +118,7 @@ export default function EmployersPage() {
       <Section className="py-16 md:py-20">
         <div className="mb-10 max-w-2xl">
           <Eyebrow>{EMPLOYERS.included.eyebrow}</Eyebrow>
-          <h2 className="mt-4 text-3xl font-semibold tracking-tight sm:text-4xl">
-            {EMPLOYERS.included.title}
-          </h2>
+          <h2 className={H2}>{EMPLOYERS.included.title}</h2>
         </div>
         <div className="grid gap-6 md:grid-cols-3">
           {EMPLOYERS.included.groups.map((g) => (
@@ -133,14 +139,38 @@ export default function EmployersPage() {
         </div>
       </Section>
 
+      {/* ---------- Meet the physician (trust) ---------- */}
+      <Section className="py-16 md:py-20">
+        <div className="grid items-center gap-8 rounded-3xl border border-border/70 bg-surface p-6 md:grid-cols-[1fr_1.3fr] md:p-10">
+          <div className="relative aspect-[4/5] overflow-hidden rounded-2xl">
+            <Image
+              src="/assets/DoctorSmilingwithMicandLabCoatVertical.jpg"
+              alt="Dr. Kalyan Aluri"
+              fill
+              sizes="(max-width: 768px) 100vw, 35vw"
+              className="object-cover"
+            />
+          </div>
+          <div>
+            <Eyebrow>A named, local physician</Eyebrow>
+            <h2 className={H2}>Your team sees the same doctor every time.</h2>
+            <p className="mt-4 text-base leading-7 text-muted-foreground">
+              Care is delivered by Dr. Kalyan Aluri, board-certified in Family
+              Medicine and Obesity Medicine, not a rotating call center. As a
+              local independent practice, we publish our price and cut out the
+              middleman. Your employees get a real relationship with a doctor
+              who has the time to listen.
+            </p>
+          </div>
+        </div>
+      </Section>
+
       {/* ---------- ROI: the hidden costs ---------- */}
       <Section className="py-16 md:py-20">
         <div className="mb-10 flex flex-wrap items-end justify-between gap-4">
           <div className="max-w-2xl">
             <Eyebrow>{EMPLOYERS.roi.eyebrow}</Eyebrow>
-            <h2 className="mt-4 text-3xl font-semibold tracking-tight sm:text-4xl">
-              {EMPLOYERS.roi.title}
-            </h2>
+            <h2 className={H2}>{EMPLOYERS.roi.title}</h2>
             <p className="mt-4 text-muted-foreground">{EMPLOYERS.roi.subtitle}</p>
           </div>
           <LinkButton href="/employers/roi" variant="outline" size="md">
@@ -170,39 +200,42 @@ export default function EmployersPage() {
       <Section id="estimate" className="scroll-mt-24 py-16 md:py-20">
         <div className="mb-8 max-w-2xl">
           <Eyebrow>Your numbers</Eyebrow>
-          <h2 className="mt-4 text-3xl font-semibold tracking-tight sm:text-4xl">
-            See your company&rsquo;s ROI.
-          </h2>
+          <h2 className={H2}>See your company&rsquo;s ROI.</h2>
           <p className="mt-4 text-muted-foreground">
             Enter your headcount and the costs you could realistically avoid.
-            Every assumption is shown and adjustable — no hype.
+            Every assumption is shown and adjustable, no hype.
           </p>
         </div>
         <SavingsCalculator />
       </Section>
 
-      {/* ---------- Ideal groups ---------- */}
+      {/* ---------- Ideal groups + location ---------- */}
       <Section className="py-16 md:py-20">
-        <div className="rounded-3xl bg-brand/5 p-8 md:p-12">
-          <div className="max-w-2xl">
-            <Eyebrow>{EMPLOYERS.idealGroups.eyebrow}</Eyebrow>
-            <h2 className="mt-4 text-3xl font-semibold tracking-tight sm:text-4xl">
-              {EMPLOYERS.idealGroups.title}
-            </h2>
-            <p className="mt-3 text-muted-foreground">
-              {EMPLOYERS.idealGroups.subtitle}
-            </p>
-          </div>
-          <div className="mt-6 flex flex-wrap gap-2.5">
-            {EMPLOYERS.idealGroups.groups.map((g) => (
-              <span
-                key={g}
-                className="rounded-full border border-border/70 bg-surface px-4 py-2 text-sm font-medium text-foreground/85"
-              >
-                {g}
-              </span>
-            ))}
-          </div>
+        <div className="mb-8 max-w-2xl">
+          <Eyebrow>{EMPLOYERS.idealGroups.eyebrow}</Eyebrow>
+          <h2 className={H2}>{EMPLOYERS.idealGroups.title}</h2>
+          <p className="mt-3 text-muted-foreground">
+            {EMPLOYERS.idealGroups.subtitle}
+          </p>
+        </div>
+        <div className="flex flex-wrap gap-2.5">
+          {EMPLOYERS.idealGroups.groups.map((g) => (
+            <span
+              key={g}
+              className="rounded-full border border-border/70 bg-surface px-4 py-2 text-sm font-medium text-foreground/85"
+            >
+              {g}
+            </span>
+          ))}
+        </div>
+        <div className="relative mt-8 overflow-hidden rounded-3xl">
+          <Image
+            src="/assets/LocationDroneGraphic.png"
+            alt="Fort Wayne Direct Primary Care location on West Jefferson Boulevard"
+            width={2400}
+            height={1200}
+            className="h-[320px] w-full object-cover sm:h-[420px]"
+          />
         </div>
       </Section>
 
@@ -210,9 +243,7 @@ export default function EmployersPage() {
       <Section className="py-16 md:py-20">
         <div className="mb-10 max-w-2xl">
           <Eyebrow>{EMPLOYERS.benefits.eyebrow}</Eyebrow>
-          <h2 className="mt-4 text-3xl font-semibold tracking-tight sm:text-4xl">
-            {EMPLOYERS.benefits.title}
-          </h2>
+          <h2 className={H2}>{EMPLOYERS.benefits.title}</h2>
         </div>
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {EMPLOYERS.benefits.items.map((b) => (
@@ -230,21 +261,28 @@ export default function EmployersPage() {
 
       {/* ---------- Wellness add-on ---------- */}
       <Section className="py-16 md:py-20">
-        <div className="grid items-center gap-8 rounded-3xl bg-brand-accent-muted p-8 md:grid-cols-[1.3fr_1fr] md:p-12">
-          <div>
+        <div className="grid items-center gap-8 overflow-hidden rounded-3xl bg-brand-accent-muted md:grid-cols-[1.2fr_1fr]">
+          <div className="p-8 md:p-12">
             <Eyebrow>{EMPLOYERS.wellnessAddon.eyebrow}</Eyebrow>
-            <h2 className="mt-4 text-3xl font-semibold tracking-tight text-foreground sm:text-4xl">
-              {EMPLOYERS.wellnessAddon.title}
-            </h2>
+            <h2 className={H2}>{EMPLOYERS.wellnessAddon.title}</h2>
             <p className="mt-4 max-w-xl text-sm leading-6 text-foreground/85">
               {EMPLOYERS.wellnessAddon.body}
             </p>
+            <div className="mt-6">
+              <LinkButton href={EMPLOYERS.wellnessAddon.cta.href} variant="brand" size="lg">
+                {EMPLOYERS.wellnessAddon.cta.label}
+                <ArrowRight className="h-4 w-4" />
+              </LinkButton>
+            </div>
           </div>
-          <div className="md:text-right">
-            <LinkButton href={EMPLOYERS.wellnessAddon.cta.href} variant="brand" size="lg">
-              {EMPLOYERS.wellnessAddon.cta.label}
-              <ArrowRight className="h-4 w-4" />
-            </LinkButton>
+          <div className="relative aspect-[4/3] md:aspect-auto md:h-full md:min-h-[320px]">
+            <Image
+              src="/assets/DoctorControllingWeightLossMachineComputerHAndOnlyVertical.jpg"
+              alt="Physician-led weight and metabolic care"
+              fill
+              sizes="(max-width: 768px) 100vw, 40vw"
+              className="object-cover"
+            />
           </div>
         </div>
       </Section>
@@ -253,9 +291,7 @@ export default function EmployersPage() {
       <Section className="py-16 md:py-20">
         <div className="mb-10 max-w-2xl">
           <Eyebrow>{EMPLOYERS.steps.eyebrow}</Eyebrow>
-          <h2 className="mt-4 text-3xl font-semibold tracking-tight sm:text-4xl">
-            {EMPLOYERS.steps.title}
-          </h2>
+          <h2 className={H2}>{EMPLOYERS.steps.title}</h2>
         </div>
         <div className="grid gap-6 md:grid-cols-3">
           {EMPLOYERS.steps.steps.map((s) => (
@@ -278,9 +314,7 @@ export default function EmployersPage() {
       <Section className="py-16 md:py-20">
         <div className="mb-10 max-w-2xl">
           <Eyebrow>{EMPLOYERS.faq.eyebrow}</Eyebrow>
-          <h2 className="mt-4 text-3xl font-semibold tracking-tight sm:text-4xl">
-            {EMPLOYERS.faq.title}
-          </h2>
+          <h2 className={H2}>{EMPLOYERS.faq.title}</h2>
         </div>
         <div className="mx-auto max-w-3xl divide-y divide-border/60 rounded-3xl border border-border/70 bg-surface">
           {EMPLOYERS.faq.items.map((f) => (

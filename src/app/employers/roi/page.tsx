@@ -6,9 +6,9 @@ import { PRACTICE } from "@/lib/site-data";
 import { PrintButton } from "./roi-actions";
 
 export const metadata: Metadata = {
-  title: "Employer ROI Sheet — $79/employee/month",
+  title: "Employer ROI Sheet, $79/employee/month",
   description:
-    "The Fort Wayne DPC employer ROI advantage — how a $79/month membership compares to the cost of urgent care, ER visits, and missed workdays.",
+    "The Fort Wayne DPC employer ROI advantage, how a $79/month membership compares to the cost of urgent care, ER visits, and missed workdays.",
 };
 
 const EMPLOYEE_BENEFITS = [
@@ -19,7 +19,7 @@ const EMPLOYEE_BENEFITS = [
   "Preventive & annual wellness care",
   "Chronic disease management",
   "Discounted labs & medications",
-  "30–60 minute personalized visits",
+  "30 to 60 minute personalized visits",
 ];
 
 /**
@@ -74,7 +74,7 @@ export default function EmployerRoiSheet() {
             Healthcare that works for your employees and your bottom line.
           </h1>
           <p className="mt-2 text-sm leading-6 text-slate-600">
-            Investment: <strong>$79 per employee / month — $948 / year.</strong>{" "}
+            Investment: <strong>$79 per employee / month, $948 / year.</strong>{" "}
             The question isn&rsquo;t whether you can afford Direct Primary Care.
             It&rsquo;s whether you can afford the cost of delayed care,
             absenteeism, and unnecessary healthcare utilization.
@@ -87,16 +87,16 @@ export default function EmployerRoiSheet() {
             The hidden cost of traditional healthcare
           </div>
           <div className="mt-3 grid grid-cols-3 gap-3">
-            <Cost label="One urgent care visit" amount="$150–$250+" />
-            <Cost label="One ER visit" amount="$1,500–$3,000+" />
-            <Cost label="One missed workday" amount="$200–$400+" />
+            <Cost label="One urgent care visit" amount="$150 to $250+" />
+            <Cost label="One ER visit" amount="$1,500 to $3,000+" />
+            <Cost label="One missed workday" amount="$200 to $400+" />
           </div>
         </div>
 
         {/* Worked example */}
         <div className="mt-6 rounded-xl border border-slate-200 bg-slate-50 p-5">
           <div className="text-xs font-semibold uppercase tracking-[0.12em] text-brand">
-            Example — a 20-employee company
+            Example, a 20-employee company
           </div>
           <div className="mt-3 grid grid-cols-2 gap-5">
             <div>
@@ -113,16 +113,16 @@ export default function EmployerRoiSheet() {
                 Potential annual savings
               </div>
               <ul className="mt-1 space-y-0.5 text-sm text-slate-700">
-                <li>10 urgent-care visits avoided — $2,000+</li>
-                <li>2 ER visits avoided — $4,000–$6,000+</li>
-                <li>20 missed workdays avoided — $4,000–$8,000+</li>
-                <li>Retaining one employee — thousands</li>
+                <li>10 urgent-care visits avoided, $2,000+</li>
+                <li>2 ER visits avoided, $4,000 to $6,000+</li>
+                <li>20 missed workdays avoided, $4,000 to $8,000+</li>
+                <li>Retaining one employee, thousands</li>
               </ul>
             </div>
           </div>
           <p className="mt-3 border-t border-slate-200 pt-3 text-sm font-medium text-slate-800">
             Potential savings can easily exceed the annual membership
-            investment — before counting a healthier, more productive team.
+            investment, before counting a healthier, more productive team.
           </p>
         </div>
 
@@ -134,9 +134,9 @@ export default function EmployerRoiSheet() {
             </div>
             <ul className="mt-3 space-y-2 text-sm text-slate-700">
               {[
-                "Same-day / next-day access — care when they need it",
+                "Same-day / next-day access, care when they need it",
                 "Direct physician contact by message, phone, telehealth",
-                "Unlimited care with no copays — people seek care early",
+                "Unlimited care with no copays, people seek care early",
                 "Better chronic-disease control, fewer complications",
                 "Preventive focus catches problems before they get expensive",
               ].map((x) => (

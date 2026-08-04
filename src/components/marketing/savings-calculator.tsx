@@ -20,7 +20,7 @@ function money(n: number): string {
 }
 
 /**
- * Employer ROI calculator — the avoided-cost model from the program doc.
+ * Employer ROI calculator, the avoided-cost model from the program doc.
  *
  * Investment = employees × $79 × 12. Potential savings = the downstream
  * costs the membership heads off (urgent care, ER, missed workdays,
@@ -68,7 +68,7 @@ export function SavingsCalculator() {
       name: name.trim() || company.trim() || "Employer inquiry",
       email: email.trim() || undefined,
       phone: phone.trim() || undefined,
-      subject: `Employer ROI request — ${company.trim() || "company"} (${m.n} employees)`,
+      subject: `Employer ROI request, ${company.trim() || "company"} (${m.n} employees)`,
       message: "Requested a custom employer ROI estimate from the website.",
       meta: {
         company: company.trim(),
@@ -113,7 +113,7 @@ export function SavingsCalculator() {
                 Costs you could avoid in a year
               </div>
               <p className="mt-1 text-xs text-muted-foreground">
-                Prefilled with conservative estimates — adjust to your team.
+                Prefilled with conservative estimates, adjust to your team.
               </p>
               <div className="mt-4 space-y-3">
                 <MiniField
@@ -185,7 +185,7 @@ export function SavingsCalculator() {
 
           {m.net >= 0 ? (
             <div className="mt-3 rounded-xl bg-brand/5 px-4 py-3 text-sm text-foreground">
-              Estimated to <strong>offset the full cost and then some</strong> —
+              Estimated to <strong>offset the full cost and then some</strong> ,
               about <strong>{money(m.net)}</strong> ahead, before counting a
               healthier, more productive team.
             </div>
@@ -198,7 +198,7 @@ export function SavingsCalculator() {
                   : 0}
                 %
               </strong>{" "}
-              of the investment — and your team still gets unlimited same-day
+              of the investment, and your team still gets unlimited same-day
               care they&rsquo;ll actually use.
             </div>
           )}
@@ -224,8 +224,7 @@ export function SavingsCalculator() {
 
           <p className="mt-4 flex items-start gap-1.5 text-[11px] leading-5 text-muted-foreground">
             <Info className="mt-0.5 h-3 w-3 shrink-0" />
-            A transparent estimate you control — not a guarantee. Higher-
-            utilization workforces (manufacturing, trades, logistics) typically
+            A transparent estimate you control, not a guarantee. Higher-utilization workforces (manufacturing, trades, logistics) typically
             avoid far more. We&rsquo;ll refine it against your real numbers on
             the call.
           </p>
@@ -241,7 +240,7 @@ export function SavingsCalculator() {
             </span>
             <div>
               <div className="text-sm font-semibold text-foreground">
-                Got it — we&rsquo;ll be in touch.
+                Got it, we&rsquo;ll be in touch.
               </div>
               <p className="mt-1 text-sm text-muted-foreground">
                 We&rsquo;ll follow up within one business day to confirm your
@@ -257,7 +256,7 @@ export function SavingsCalculator() {
               </h3>
               <p className="text-sm text-muted-foreground">
                 Send it over and we&rsquo;ll build your ROI on your real
-                numbers — no obligation.
+                numbers, no obligation.
               </p>
             </div>
             <div className="grid gap-4 sm:grid-cols-2">

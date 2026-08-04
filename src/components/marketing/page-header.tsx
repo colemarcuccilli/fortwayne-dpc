@@ -1,6 +1,7 @@
 import { LinkButton } from "@/components/ui/link-button";
 import { Eyebrow } from "@/components/marketing/section";
 import { ArrowRight } from "lucide-react";
+import { cn } from "@/lib/utils";
 
 interface CtaLink {
   label: string;
@@ -12,6 +13,8 @@ interface PageHeaderProps {
   title: React.ReactNode;
   subtitle?: string;
   primaryCta?: CtaLink;
+  /** Override the default title size classes (e.g. to fit a longer headline). */
+  titleClassName?: string;
 }
 
 /**
@@ -23,6 +26,7 @@ export function PageHeader({
   title,
   subtitle,
   primaryCta,
+  titleClassName,
 }: PageHeaderProps) {
   return (
     <section className="relative overflow-hidden border-b border-border/60">
@@ -33,7 +37,12 @@ export function PageHeader({
       <div className="mx-auto w-full max-w-6xl px-5 pt-20 pb-16 sm:px-8 md:pt-28 md:pb-20">
         <div className="max-w-3xl">
           <Eyebrow>{eyebrow}</Eyebrow>
-          <h1 className="mt-5 text-4xl font-semibold leading-[1.05] tracking-[-0.035em] text-foreground sm:text-5xl md:text-6xl">
+          <h1
+            className={cn(
+              "mt-5 text-balance font-semibold leading-[1.05] tracking-[-0.035em] text-foreground",
+              titleClassName ?? "text-4xl sm:text-5xl md:text-6xl",
+            )}
+          >
             {title}
           </h1>
           {subtitle && (
