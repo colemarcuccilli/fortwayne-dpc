@@ -5,6 +5,7 @@ import { Footer } from "@/components/brand/footer";
 import { PromoBar } from "@/components/marketing/promo-bar";
 import "./globals.css";
 import { Analytics } from "@vercel/analytics/next";
+import SiteEvents from "@/components/SiteEvents";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -50,6 +51,7 @@ export default function RootLayout({
         <main className="flex-1">{children}</main>
         <Footer />
         <Analytics />
+        <SiteEvents />
       </body>
     </html>
   );
