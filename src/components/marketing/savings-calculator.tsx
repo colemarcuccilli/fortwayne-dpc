@@ -7,6 +7,8 @@ import { Button } from "@/components/ui/button";
 import { Check, Info, Send } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { saveSubmissionLocal } from "@/lib/admin/public-submission";
+import { Turnstile, TURNSTILE_ENABLED } from "@/components/marketing/turnstile";
+import { SUBMIT_ERROR } from "@/lib/submit-error";
 import { EMPLOYER_ECONOMICS } from "@/lib/employer-content";
 
 const E = EMPLOYER_ECONOMICS;
@@ -48,6 +50,10 @@ export function SavingsCalculator() {
   const [email, setEmail] = useState("");
   const [phone, setPhone] = useState("");
   const [submitted, setSubmitted] = useState(false);
+  const [token, setToken] = useState<string | null>(null);
+  const [sending, setSending] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [resetSignal, setResetSignal] = useState(0);
 
   const m = useMemo(() => {
     const n = Math.max(0, Number(employees) || 0);
@@ -63,25 +69,39 @@ export function SavingsCalculator() {
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
-    await saveSubmissionLocal({
-      type: "employer",
-      name: name.trim() || company.trim() || "Employer inquiry",
-      email: email.trim() || undefined,
-      phone: phone.trim() || undefined,
-      subject: `Employer ROI request, ${company.trim() || "company"} (${m.n} employees)`,
-      message: "Requested a custom employer ROI estimate from the website.",
-      meta: {
-        company: company.trim(),
-        employees: m.n,
-        annualInvestment: m.investment,
-        avoidedUrgentCare: Number(urgent) || 0,
-        avoidedErVisits: Number(er) || 0,
-        avoidedWorkdays: Number(workdays) || 0,
-        retainedEmployees: Number(turnover) || 0,
-        potentialSavings: Math.round(m.savings),
+    if (sending) return;
+    setSending(true);
+    setError(null);
+    const result = await saveSubmissionLocal(
+      {
+        type: "employer",
+        name: name.trim() || company.trim() || "Employer inquiry",
+        email: email.trim() || undefined,
+        phone: phone.trim() || undefined,
+        subject: `Employer ROI request, ${company.trim() || "company"} (${m.n} employees)`,
+        message: "Requested a custom employer ROI estimate from the website.",
+        meta: {
+          company: company.trim(),
+          employees: m.n,
+          annualInvestment: m.investment,
+          avoidedUrgentCare: Number(urgent) || 0,
+          avoidedErVisits: Number(er) || 0,
+          avoidedWorkdays: Number(workdays) || 0,
+          retainedEmployees: Number(turnover) || 0,
+          potentialSavings: Math.round(m.savings),
+        },
       },
-    });
-    setSubmitted(true);
+      token,
+    );
+    setSending(false);
+
+    if (result.ok) {
+      setSubmitted(true);
+    } else {
+      setError(SUBMIT_ERROR(result.reason));
+      setToken(null);
+      setResetSignal((n) => n + 1); // tokens are single-use
+    }
   }
 
   return (
@@ -277,9 +297,27 @@ export function SavingsCalculator() {
                 <Input id="calc-phone" type="tel" value={phone} onChange={(e) => setPhone(e.target.value)} />
               </div>
             </div>
-            <Button type="submit" size="lg" className="mt-5 bg-brand text-brand-foreground hover:bg-brand/90">
+            <div className="mt-5">
+              <Turnstile onVerify={setToken} resetSignal={resetSignal} />
+            </div>
+
+            {error && (
+              <p
+                role="alert"
+                className="mt-3 rounded-lg border border-destructive/30 bg-destructive/5 px-3 py-2 text-sm text-destructive"
+              >
+                {error}
+              </p>
+            )}
+
+            <Button
+              type="submit"
+              size="lg"
+              disabled={sending || (TURNSTILE_ENABLED && !token)}
+              className="mt-4 bg-brand text-brand-foreground hover:bg-brand/90 disabled:opacity-60"
+            >
               <Send className="mr-1.5 h-4 w-4" />
-              Send me my ROI estimate
+              {sending ? "Sending..." : "Send me my ROI estimate"}
             </Button>
           </form>
         )}

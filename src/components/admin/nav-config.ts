@@ -4,6 +4,7 @@ import {
   CheckSquare,
   Clock,
   DollarSign,
+  FileText,
   Inbox,
   LayoutDashboard,
   LayoutGrid,
@@ -28,8 +29,9 @@ export interface AdminNavItem {
 export const ADMIN_NAV: AdminNavItem[] = [
   { label: "Dashboard", href: "/admin", icon: LayoutDashboard, primary: true },
   { label: "Pipeline", href: "/admin/pipeline", icon: LayoutGrid, primary: true },
-  { label: "Inbox", href: "/admin/inbox", icon: Inbox, primary: true },
-  { label: "Settings", href: "/admin/settings", icon: Settings, primary: true },
+  { label: "Patient Forms", href: "/admin/patient-forms", icon: FileText, primary: true },
+  { label: "Messages", href: "/admin/inbox", icon: Inbox, primary: true },
+  { label: "Settings", href: "/admin/settings", icon: Settings },
 
   // ---- Held back for phase 2 (hidden from nav, routes still live) ----
   { label: "Appointments", href: "/admin/appointments", icon: Calendar, hidden: true },

@@ -5,6 +5,8 @@ import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { LinkButton } from "@/components/ui/link-button";
 import { saveSubmissionLocal } from "@/lib/admin/public-submission";
+import { Turnstile, TURNSTILE_ENABLED } from "@/components/marketing/turnstile";
+import { SUBMIT_ERROR } from "@/lib/submit-error";
 import { ArrowLeft, ArrowRight, Check } from "lucide-react";
 import {
   ACTIVITY_LEVELS,
@@ -33,9 +35,35 @@ import {
   YesNoNaGroup,
 } from "@/components/patient-form/fields";
 
+/**
+ * Turn a form's fields into a clean { name: value } object. Checkbox
+ * groups (name="x[]") collapse to arrays under the base key; empty
+ * values are dropped so the stored intake only holds real answers.
+ */
+function serializeForm(
+  form: HTMLFormElement,
+): Record<string, string | string[]> {
+  const fd = new FormData(form);
+  const out: Record<string, string | string[]> = {};
+  for (const key of new Set(fd.keys())) {
+    const values = fd
+      .getAll(key)
+      .map((v) => String(v).trim())
+      .filter(Boolean);
+    if (values.length === 0) continue;
+    const cleanKey = key.endsWith("[]") ? key.slice(0, -2) : key;
+    out[cleanKey] = values.length > 1 ? values : values[0];
+  }
+  return out;
+}
+
 export function PatientForm() {
   const [step, setStep] = useState<StepId>(1);
   const [submitted, setSubmitted] = useState(false);
+  const [token, setToken] = useState<string | null>(null);
+  const [sending, setSending] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [resetSignal, setResetSignal] = useState(0);
 
   function next() {
     if (step < 5) setStep((s) => (s + 1) as StepId);
@@ -51,7 +79,7 @@ export function PatientForm() {
           <Check className="h-7 w-7" strokeWidth={3} />
         </div>
         <h2 className="mt-6 text-2xl font-semibold tracking-tight">
-          Thanks — your form is on its way.
+          Thanks, your form is on its way.
         </h2>
         <p className="mt-3 text-sm text-muted-foreground">
           Our office will review your intake and reach out within one business
@@ -70,42 +98,82 @@ export function PatientForm() {
     );
   }
 
+  async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
+    e.preventDefault();
+    if (step < 5) {
+      next();
+      return;
+    }
+    if (sending) return;
+    // All steps stay mounted, so the whole form serializes here.
+    const form = e.currentTarget;
+    const formData = serializeForm(form);
+    const firstName = String(formData.first_name ?? "");
+    const lastName = String(formData.last_name ?? "");
+    const name = `${firstName} ${lastName}`.trim();
+    if (!name) {
+      setStep(1);
+      window.alert("Please enter the patient's first and last name (Step 1).");
+      return;
+    }
+
+    setSending(true);
+    setError(null);
+    const result = await saveSubmissionLocal(
+      {
+        type: "patient",
+        name,
+        email: (formData.email as string) || undefined,
+        phone: (formData.cell_phone as string) || undefined,
+        subject: "New patient intake",
+        meta: { formVersion: "v1" },
+        formData,
+      },
+      token,
+    );
+    setSending(false);
+
+    if (result.ok) {
+      setSubmitted(true);
+    } else {
+      setError(SUBMIT_ERROR(result.reason));
+      setToken(null);
+      setResetSignal((n) => n + 1); // tokens are single-use
+    }
+  }
+
   return (
-    <form
-      onSubmit={(e) => {
-        e.preventDefault();
-        if (step < 5) {
-          next();
-          return;
-        }
-        const form = e.currentTarget;
-        const data = new FormData(form);
-        const firstName = String(data.get("first_name") ?? "");
-        const lastName = String(data.get("last_name") ?? "");
-        const email = String(data.get("email") ?? "");
-        const phone = String(data.get("cell_phone") ?? "");
-        saveSubmissionLocal({
-          type: "patient",
-          name: `${firstName} ${lastName}`.trim() || "New patient",
-          email: email || undefined,
-          phone: phone || undefined,
-          subject: "New patient intake completed",
-          meta: {
-            formVersion: "v1",
-            pages: 5,
-          },
-        });
-        setSubmitted(true);
-      }}
-      className="space-y-10"
-    >
+    <form onSubmit={handleSubmit} className="space-y-10">
       <StepIndicator current={step} />
 
-      {step === 1 && <Step1 />}
-      {step === 2 && <Step2 />}
-      {step === 3 && <Step3 />}
-      {step === 4 && <Step4 />}
-      {step === 5 && <Step5 />}
+      <div className={cn(step !== 1 && "hidden")}>
+        <Step1 />
+      </div>
+      <div className={cn(step !== 2 && "hidden")}>
+        <Step2 />
+      </div>
+      <div className={cn(step !== 3 && "hidden")}>
+        <Step3 />
+      </div>
+      <div className={cn(step !== 4 && "hidden")}>
+        <Step4 />
+      </div>
+      <div className={cn(step !== 5 && "hidden")}>
+        <Step5 />
+      </div>
+
+      {/* Bot check — only on the final step, where the form actually submits */}
+      <div className={cn(step !== 5 && "hidden")}>
+        <Turnstile onVerify={setToken} resetSignal={resetSignal} />
+        {error && (
+          <p
+            role="alert"
+            className="mt-3 rounded-lg border border-destructive/30 bg-destructive/5 px-3 py-2 text-sm text-destructive"
+          >
+            {error}
+          </p>
+        )}
+      </div>
 
       <div className="flex flex-wrap items-center justify-between gap-3 border-t border-border/60 pt-6">
         <Button
@@ -120,8 +188,12 @@ export function PatientForm() {
         <div className="font-mono text-[11px] uppercase tracking-[0.16em] text-muted-foreground">
           Step {step} of 5
         </div>
-        <Button type="submit">
-          {step === 5 ? "Submit form" : "Continue"}
+        <Button
+          type="submit"
+          disabled={sending || (step === 5 && TURNSTILE_ENABLED && !token)}
+          className="disabled:opacity-60"
+        >
+          {step === 5 ? (sending ? "Submitting..." : "Submit form") : "Continue"}
           <ArrowRight className="ml-1.5 h-4 w-4" />
         </Button>
       </div>

@@ -2,10 +2,12 @@
 // Six campaign topics from the doctor's brief, organized as
 // permanent on-page content + one time-limited promo (Mother's Day).
 //
-// IMPORTANT: flip MOTHERS_DAY_ACTIVE to false after May 31, 2026.
-// The promo bar at the top of every page reads from this constant.
+// MOTHERS_DAY_ACTIVE controls the sitewide promo bar AND the promo
+// section on /aesthetics. Set to false = the Mother's Day special is
+// hidden everywhere (the content below stays dormant for reuse). Flip
+// back to true to run it again.
 
-export const MOTHERS_DAY_ACTIVE = true;
+export const MOTHERS_DAY_ACTIVE = false;
 
 export const AESTHETICS = {
   hero: {

@@ -2,14 +2,18 @@
 
 // Admin state store.
 //
-// The reducer + useAdmin() API is unchanged. What differs from the
-// first draft: instead of persisting to localStorage, we now hydrate
-// from Supabase on mount and mirror every mutation as a fire-and-forget
-// upsert / delete against the corresponding table.
+// The reducer + useAdmin() API is unchanged. Data I/O goes through the
+// server API routes under /api/admin/*, which use the service-role key
+// and are gated by the signed admin session cookie. The BROWSER HOLDS
+// NO DATABASE CREDENTIALS — it only calls same-origin endpoints that
+// verify the session before touching the database.
 //
-// If Supabase is not configured (SUPABASE_CONFIGURED is false), we
-// fall back to the local SEED and everything still works — this keeps
-// the demo functional even on a preview URL without env vars set.
+//   hydrate  -> GET  /api/admin/state
+//   mutate   -> POST /api/admin/mutate   (fire-and-forget mirror)
+//   clearAll -> POST /api/admin/clear
+//
+// On a bare preview without a service key the routes serve SEED / no-op,
+// so the demo still functions.
 
 import { nanoid } from "nanoid";
 import {
@@ -35,28 +39,6 @@ import type {
   Task,
   Transaction,
 } from "./types";
-import {
-  SUPABASE_CONFIGURED,
-  appointmentFromRow,
-  appointmentToRow,
-  availabilityFromRow,
-  availabilityToRow,
-  customerFromRow,
-  customerToRow,
-  getSupabase,
-  messageFromRow,
-  messageToRow,
-  prospectFromRow,
-  prospectToRow,
-  settingsFromRow,
-  settingsToRow,
-  submissionFromRow,
-  submissionToRow,
-  taskFromRow,
-  taskToRow,
-  transactionFromRow,
-  transactionToRow,
-} from "./supabase";
 
 // -------------------- reducer --------------------
 
@@ -307,168 +289,121 @@ function reducer(state: AdminState, action: Action): AdminState {
   }
 }
 
-/**
- * Fire-and-forget Supabase mirror of a reducer action. Reads the
- * NEXT state to know what to write. Errors are swallowed to console
- * so a transient network failure never freezes the UI — full
- * refresh on next mount re-syncs.
- */
-async function sideEffect(action: Action, nextState: AdminState): Promise<void> {
-  if (!SUPABASE_CONFIGURED) return;
-  const supabase = getSupabase();
-  try {
-    switch (action.type) {
-      case "hydrate":
-      case "reset":
-        return; // no writes
+// -------------------- server mirror --------------------
+//
+// One reducer action maps to at most one whitelisted write. We read the
+// NEXT state to know the row to persist, then POST it to /api/admin/mutate.
 
-      case "prospect_add": {
-        const p = nextState.prospects[0];
-        await supabase.from("prospects").insert(prospectToRow(p));
-        return;
-      }
-      case "prospect_update":
-      case "prospect_add_activity": {
-        const p = nextState.prospects.find((p) => p.id === action.id);
-        if (p) await supabase.from("prospects").upsert(prospectToRow(p));
-        return;
-      }
-      case "prospect_delete":
-        await supabase.from("prospects").delete().eq("id", action.id);
-        return;
+interface Mutation {
+  table: string;
+  op: "upsert" | "delete";
+  row?: unknown;
+  id?: string;
+}
 
-      case "submission_add": {
-        const s = nextState.submissions[0];
-        await supabase.from("submissions").insert(submissionToRow(s));
-        return;
-      }
-      case "submission_mark_read":
-      case "submission_archive": {
-        const s = nextState.submissions.find((s) => s.id === action.id);
-        if (s) await supabase.from("submissions").upsert(submissionToRow(s));
-        return;
-      }
+function mutationFor(action: Action, next: AdminState): Mutation | null {
+  switch (action.type) {
+    case "hydrate":
+    case "reset":
+      return null;
 
-      case "appt_add": {
-        const a = nextState.appointments[0];
-        await supabase.from("appointments").insert(appointmentToRow(a));
-        return;
-      }
-      case "appt_update": {
-        const a = nextState.appointments.find((a) => a.id === action.id);
-        if (a) await supabase.from("appointments").upsert(appointmentToRow(a));
-        return;
-      }
-      case "appt_delete":
-        await supabase.from("appointments").delete().eq("id", action.id);
-        return;
-
-      case "customer_add": {
-        const c = nextState.customers[0];
-        await supabase.from("customers").insert(customerToRow(c));
-        return;
-      }
-      case "customer_update":
-      case "customer_add_note": {
-        const c = nextState.customers.find((c) => c.id === action.id);
-        if (c) await supabase.from("customers").upsert(customerToRow(c));
-        return;
-      }
-      case "customer_delete":
-        await supabase.from("customers").delete().eq("id", action.id);
-        return;
-
-      case "txn_add": {
-        const t = nextState.transactions[0];
-        await supabase.from("transactions").insert(transactionToRow(t));
-        return;
-      }
-      case "txn_delete":
-        await supabase.from("transactions").delete().eq("id", action.id);
-        return;
-
-      case "task_add": {
-        const t = nextState.tasks[0];
-        await supabase.from("tasks").insert(taskToRow(t));
-        return;
-      }
-      case "task_update": {
-        const t = nextState.tasks.find((t) => t.id === action.id);
-        if (t) await supabase.from("tasks").upsert(taskToRow(t));
-        return;
-      }
-      case "task_delete":
-        await supabase.from("tasks").delete().eq("id", action.id);
-        return;
-
-      case "availability_set":
-        await supabase
-          .from("availability")
-          .upsert(availabilityToRow(nextState.availability));
-        return;
-
-      case "settings_update":
-        await supabase.from("settings").upsert(settingsToRow(nextState.settings));
-        return;
-
-      case "message_add": {
-        const m = nextState.messages[0];
-        await supabase.from("messages").insert(messageToRow(m));
-        return;
-      }
-      case "message_send": {
-        const m = nextState.messages.find((m) => m.id === action.id);
-        if (m) await supabase.from("messages").upsert(messageToRow(m));
-        return;
-      }
-      case "message_delete":
-        await supabase.from("messages").delete().eq("id", action.id);
-        return;
+    case "prospect_add":
+      return { table: "prospects", op: "upsert", row: next.prospects[0] };
+    case "prospect_update":
+    case "prospect_add_activity": {
+      const p = next.prospects.find((p) => p.id === action.id);
+      return p ? { table: "prospects", op: "upsert", row: p } : null;
     }
+    case "prospect_delete":
+      return { table: "prospects", op: "delete", id: action.id };
+
+    case "submission_add":
+      return { table: "submissions", op: "upsert", row: next.submissions[0] };
+    case "submission_mark_read":
+    case "submission_archive": {
+      const s = next.submissions.find((s) => s.id === action.id);
+      return s ? { table: "submissions", op: "upsert", row: s } : null;
+    }
+
+    case "appt_add":
+      return { table: "appointments", op: "upsert", row: next.appointments[0] };
+    case "appt_update": {
+      const a = next.appointments.find((a) => a.id === action.id);
+      return a ? { table: "appointments", op: "upsert", row: a } : null;
+    }
+    case "appt_delete":
+      return { table: "appointments", op: "delete", id: action.id };
+
+    case "customer_add":
+      return { table: "customers", op: "upsert", row: next.customers[0] };
+    case "customer_update":
+    case "customer_add_note": {
+      const c = next.customers.find((c) => c.id === action.id);
+      return c ? { table: "customers", op: "upsert", row: c } : null;
+    }
+    case "customer_delete":
+      return { table: "customers", op: "delete", id: action.id };
+
+    case "txn_add":
+      return { table: "transactions", op: "upsert", row: next.transactions[0] };
+    case "txn_delete":
+      return { table: "transactions", op: "delete", id: action.id };
+
+    case "task_add":
+      return { table: "tasks", op: "upsert", row: next.tasks[0] };
+    case "task_update": {
+      const t = next.tasks.find((t) => t.id === action.id);
+      return t ? { table: "tasks", op: "upsert", row: t } : null;
+    }
+    case "task_delete":
+      return { table: "tasks", op: "delete", id: action.id };
+
+    case "availability_set":
+      return { table: "availability", op: "upsert", row: next.availability };
+    case "settings_update":
+      return { table: "settings", op: "upsert", row: next.settings };
+
+    case "message_add":
+      return { table: "messages", op: "upsert", row: next.messages[0] };
+    case "message_send": {
+      const m = next.messages.find((m) => m.id === action.id);
+      return m ? { table: "messages", op: "upsert", row: m } : null;
+    }
+    case "message_delete":
+      return { table: "messages", op: "delete", id: action.id };
+  }
+}
+
+/**
+ * Fire-and-forget server mirror of a reducer action. Errors are logged
+ * so a transient failure never freezes the UI — a full refresh on next
+ * mount re-syncs from the server.
+ */
+async function persistMutation(action: Action, next: AdminState): Promise<void> {
+  const mutation = mutationFor(action, next);
+  if (!mutation) return;
+  try {
+    await fetch("/api/admin/mutate", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(mutation),
+    });
   } catch (err) {
-    console.error("[admin/store] Supabase sync failed:", err);
+    console.error("[admin/store] mutate failed:", err);
   }
 }
 
 // -------------------- hydration --------------------
 
-async function hydrateFromSupabase(): Promise<AdminState> {
-  const supabase = getSupabase();
-  const [
-    prospects,
-    submissions,
-    customers,
-    appointments,
-    transactions,
-    tasks,
-    messages,
-    availability,
-    settings,
-  ] = await Promise.all([
-    supabase.from("prospects").select("*").order("updated_at", { ascending: false }),
-    supabase.from("submissions").select("*").order("created_at", { ascending: false }),
-    supabase.from("customers").select("*").order("created_at", { ascending: false }),
-    supabase.from("appointments").select("*").order("starts_at", { ascending: true }),
-    supabase.from("transactions").select("*").order("occurred_at", { ascending: false }),
-    supabase.from("tasks").select("*").order("created_at", { ascending: false }),
-    supabase.from("messages").select("*").order("created_at", { ascending: false }),
-    supabase.from("availability").select("*").eq("id", "singleton").maybeSingle(),
-    supabase.from("settings").select("*").eq("id", "singleton").maybeSingle(),
-  ]);
-
-  return {
-    prospects: (prospects.data ?? []).map(prospectFromRow),
-    submissions: (submissions.data ?? []).map(submissionFromRow),
-    customers: (customers.data ?? []).map(customerFromRow),
-    appointments: (appointments.data ?? []).map(appointmentFromRow),
-    transactions: (transactions.data ?? []).map(transactionFromRow),
-    tasks: (tasks.data ?? []).map(taskFromRow),
-    messages: (messages.data ?? []).map(messageFromRow),
-    availability: availability.data
-      ? availabilityFromRow(availability.data)
-      : SEED.availability,
-    settings: settings.data ? settingsFromRow(settings.data) : SEED.settings,
-  };
+async function fetchState(): Promise<AdminState | null> {
+  try {
+    const res = await fetch("/api/admin/state", { cache: "no-store" });
+    if (!res.ok) throw new Error(`state ${res.status}`);
+    return (await res.json()) as AdminState;
+  } catch (err) {
+    console.error("[admin/store] hydrate failed:", err);
+    return null;
+  }
 }
 
 // -------------------- context --------------------
@@ -477,6 +412,8 @@ interface AdminContextValue {
   state: AdminState;
   dispatch: React.Dispatch<Action>;
   hydrated: boolean;
+  /** True once the server admin API answered — i.e. data is server-backed. */
+  synced: boolean;
   /** Permanently deletes every CRM record. There is no seed to fall back to. */
   clearAll: () => Promise<void>;
 }
@@ -489,31 +426,30 @@ export function AdminProvider({ children }: { children: React.ReactNode }) {
     (_: boolean, next: boolean) => next,
     false,
   );
+  const [synced, setSynced] = useReducer(
+    (_: boolean, next: boolean) => next,
+    false,
+  );
 
-  // Wrap dispatch so every action mirrors to Supabase.
+  // Wrap dispatch so every action mirrors to the server.
   const dispatch = useCallback<React.Dispatch<Action>>(
     (action) => {
       dispatchRaw(action);
-      // Read the ABOUT-TO-BE state to send to sideEffect
+      // Read the ABOUT-TO-BE state to send to the mirror.
       const next = reducer(state, action);
-      void sideEffect(action, next);
+      void persistMutation(action, next);
     },
     [state],
   );
 
-  // Hydrate once on mount
+  // Hydrate once on mount from the server.
   useEffect(() => {
     let cancelled = false;
     (async () => {
-      if (!SUPABASE_CONFIGURED) {
-        setHydrated(true);
-        return;
-      }
-      try {
-        const remote = await hydrateFromSupabase();
-        if (!cancelled) dispatchRaw({ type: "hydrate", state: remote });
-      } catch (err) {
-        console.error("[admin/store] hydrate failed:", err);
+      const remote = await fetchState();
+      if (!cancelled && remote) {
+        dispatchRaw({ type: "hydrate", state: remote });
+        setSynced(true);
       }
       if (!cancelled) setHydrated(true);
     })();
@@ -524,28 +460,17 @@ export function AdminProvider({ children }: { children: React.ReactNode }) {
 
   // Permanently wipe every CRM record. No seed is re-inserted.
   const clearAll = useCallback(async () => {
-    if (SUPABASE_CONFIGURED) {
-      const supabase = getSupabase();
-      try {
-        await Promise.all([
-          supabase.from("prospects").delete().neq("id", ""),
-          supabase.from("submissions").delete().neq("id", ""),
-          supabase.from("customers").delete().neq("id", ""),
-          supabase.from("appointments").delete().neq("id", ""),
-          supabase.from("transactions").delete().neq("id", ""),
-          supabase.from("tasks").delete().neq("id", ""),
-          supabase.from("messages").delete().neq("id", ""),
-        ]);
-      } catch (err) {
-        console.error("[admin/store] clear failed:", err);
-      }
+    try {
+      await fetch("/api/admin/clear", { method: "POST" });
+    } catch (err) {
+      console.error("[admin/store] clear failed:", err);
     }
     dispatchRaw({ type: "reset" });
   }, []);
 
   const value = useMemo(
-    () => ({ state, dispatch, hydrated, clearAll }),
-    [state, dispatch, hydrated, clearAll],
+    () => ({ state, dispatch, hydrated, synced, clearAll }),
+    [state, dispatch, hydrated, synced, clearAll],
   );
 
   return <AdminContext.Provider value={value}>{children}</AdminContext.Provider>;

@@ -2,7 +2,7 @@
 
 import {
   Building2,
-  CheckCircle2,
+  FileText,
   Inbox as InboxIcon,
   TrendingUp,
   ArrowRight,
@@ -31,8 +31,12 @@ export default function AdminDashboardPage() {
   const toContact = state.prospects.filter(
     (p) => p.stage === "researched" || p.stage === "to_contact",
   );
-  const wonProspects = state.prospects.filter((p) => p.stage === "won");
-  const unread = state.submissions.filter((s) => !s.read && !s.archived);
+  // Split inbound: patient intake forms have their own page; everything else
+  // (contact form + employer inquiries) is a "message".
+  const messages = state.submissions.filter((s) => s.type !== "patient");
+  const patientForms = state.submissions.filter((s) => s.type === "patient");
+  const unreadMessages = messages.filter((s) => !s.read && !s.archived);
+  const unreadPatientForms = patientForms.filter((s) => !s.read && !s.archived);
 
   const stageCounts: Record<string, number> = {};
   state.prospects.forEach((p) => {
@@ -49,9 +53,7 @@ export default function AdminDashboardPage() {
         parseISO(b.nextFollowUp!).getTime(),
     );
 
-  const recentSubs = state.submissions
-    .filter((s) => !s.archived)
-    .slice(0, 5);
+  const recentMessages = messages.filter((s) => !s.archived).slice(0, 5);
 
   return (
     <div className="space-y-6">
@@ -62,7 +64,7 @@ export default function AdminDashboardPage() {
           <>
             <AdminButton href="/admin/inbox" variant="outline">
               <InboxIcon className="h-4 w-4" />
-              Inbox
+              Messages
             </AdminButton>
             <AdminButton href="/admin/pipeline" variant="solid">
               <TrendingUp className="h-4 w-4" />
@@ -87,18 +89,18 @@ export default function AdminDashboardPage() {
           icon={Send}
         />
         <KpiCard
-          label="Won"
-          value={String(wonProspects.length)}
-          hint={wonProspects.length === 1 ? "employer signed" : "employers signed"}
-          icon={CheckCircle2}
-          tone={wonProspects.length > 0 ? "success" : "default"}
+          label="New patient forms"
+          value={String(unreadPatientForms.length)}
+          hint={`${patientForms.filter((s) => !s.archived).length} total intake forms`}
+          icon={FileText}
+          tone={unreadPatientForms.length > 0 ? "warning" : "default"}
         />
         <KpiCard
-          label="Unread leads"
-          value={String(unread.length)}
-          hint={`${state.submissions.filter((s) => !s.archived).length} total`}
+          label="Unread messages"
+          value={String(unreadMessages.length)}
+          hint={`${messages.filter((s) => !s.archived).length} contact & employer`}
           icon={InboxIcon}
-          tone={unread.length > 0 ? "warning" : "default"}
+          tone={unreadMessages.length > 0 ? "warning" : "default"}
         />
       </div>
 
@@ -139,10 +141,10 @@ export default function AdminDashboardPage() {
           <div className="mb-4 flex items-center justify-between">
             <div>
               <h2 className="text-sm font-semibold text-slate-900">
-                Recent leads
+                Recent messages
               </h2>
               <p className="text-xs text-slate-500">
-                Latest form submissions.
+                Latest contact &amp; employer inquiries.
               </p>
             </div>
             <AdminButton href="/admin/inbox" variant="ghost" size="sm">
@@ -150,11 +152,11 @@ export default function AdminDashboardPage() {
               <ArrowRight className="h-3.5 w-3.5" />
             </AdminButton>
           </div>
-          {recentSubs.length === 0 ? (
-            <EmptyState icon={InboxIcon} title="No leads yet" />
+          {recentMessages.length === 0 ? (
+            <EmptyState icon={InboxIcon} title="No messages yet" />
           ) : (
             <ul className="divide-y divide-slate-100">
-              {recentSubs.map((s) => (
+              {recentMessages.map((s) => (
                 <li key={s.id} className="py-3 first:pt-0 last:pb-0">
                   <div className="flex items-center gap-2">
                     {!s.read && (

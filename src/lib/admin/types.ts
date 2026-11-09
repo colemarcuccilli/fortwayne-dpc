@@ -94,6 +94,9 @@ export interface Prospect {
 
 export type SubmissionType = "contact" | "patient" | "employer";
 
+/** A single answer from a submitted form: text, a choice, or a checkbox list. */
+export type FormValue = string | string[];
+
 export interface Submission {
   id: string;
   type: SubmissionType;
@@ -103,6 +106,8 @@ export interface Submission {
   subject?: string;
   message?: string;
   meta?: Record<string, string | number | boolean>;
+  /** Full structured answers — every field of the patient intake, etc. */
+  formData?: Record<string, FormValue>;
   read: boolean;
   archived: boolean;
   createdAt: ISODate;

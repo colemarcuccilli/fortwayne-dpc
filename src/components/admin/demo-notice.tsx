@@ -3,21 +3,18 @@
 import { useState } from "react";
 import { X, CloudCheck, HardDrive } from "lucide-react";
 import { useAdmin } from "@/lib/admin/store";
-import { SUPABASE_CONFIGURED } from "@/lib/admin/supabase";
 
 /**
- * Slim, honest sync-status line. Green when talking to Supabase (real
- * data, synced across devices); amber when falling back to local
- * browser storage. No fake seed data exists, so there's no "reset to
- * seed" — only an explicit, confirmed "clear all data".
+ * Slim, honest sync-status line. Green once the server admin API has
+ * answered (real data, synced across devices); amber while it hasn't.
+ * No fake seed data exists, so there's no "reset to seed" — only an
+ * explicit, confirmed "clear all data".
  */
 export function DemoNotice() {
   const [hidden, setHidden] = useState(false);
-  const { clearAll, hydrated } = useAdmin();
+  const { clearAll, hydrated, synced } = useAdmin();
 
   if (hidden) return null;
-
-  const synced = SUPABASE_CONFIGURED;
 
   async function handleClear() {
     const ok = window.confirm(
@@ -46,14 +43,14 @@ export function DemoNotice() {
           }
         >
           {synced ? <CloudCheck className="h-3 w-3" /> : <HardDrive className="h-3 w-3" />}
-          {synced ? "Live" : "Local only"}
+          {synced ? "Live" : hydrated ? "Offline" : "Loading"}
         </span>
         <span className="flex-1 text-slate-500">
           {synced
-            ? hydrated
-              ? "Connected to database. Real data, synced across devices."
-              : "Loading…"
-            : "Not connected to the database — data is only in this browser."}
+            ? "Connected to the database. Real data, synced across devices."
+            : hydrated
+              ? "Can't reach the server right now — retry by refreshing."
+              : "Loading…"}
         </span>
         <button
           onClick={handleClear}

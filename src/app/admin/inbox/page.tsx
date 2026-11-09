@@ -25,20 +25,29 @@ const TYPE_LABEL: Record<SubmissionType, string> = {
 
 type Filter = "all" | "unread" | SubmissionType | "archived";
 
+// Patient intake forms have their own dedicated page (/admin/patient-forms),
+// so Messages only deals with contact-form and employer inquiries.
+const isMessage = (s: Submission) => s.type !== "patient";
+
 export default function InboxPage() {
   const { state, dispatch } = useAdmin();
   const [filter, setFilter] = useState<Filter>("all");
   const [selected, setSelected] = useState<Submission | null>(null);
 
+  const messages = useMemo(
+    () => state.submissions.filter(isMessage),
+    [state.submissions],
+  );
+
   const filtered = useMemo(() => {
-    return state.submissions.filter((s) => {
+    return messages.filter((s) => {
       if (filter === "archived") return s.archived;
       if (s.archived) return false;
       if (filter === "unread") return !s.read;
       if (filter === "all") return true;
       return s.type === filter;
     });
-  }, [state.submissions, filter]);
+  }, [messages, filter]);
 
   function openSubmission(s: Submission) {
     setSelected(s);
@@ -49,8 +58,8 @@ export default function InboxPage() {
   return (
     <div className="space-y-5">
       <AdminPageHeader
-        title="Inbox"
-        subtitle="All form submissions from the public site — contact form, new-patient intake, employer inquiries."
+        title="Messages"
+        subtitle="Contact-form and employer inquiries from the public site. New-patient intake forms live under Patient Forms."
       />
 
       <Tabs value={filter} onValueChange={(v) => setFilter(v as Filter)}>
@@ -58,17 +67,16 @@ export default function InboxPage() {
           <TabsTrigger value="all">
             All
             <span className="ml-1.5 rounded-full bg-slate-200 px-1.5 py-0 font-mono text-[10px]">
-              {state.submissions.filter((s) => !s.archived).length}
+              {messages.filter((s) => !s.archived).length}
             </span>
           </TabsTrigger>
           <TabsTrigger value="unread">
             Unread
             <span className="ml-1.5 rounded-full bg-slate-200 px-1.5 py-0 font-mono text-[10px]">
-              {state.submissions.filter((s) => !s.read && !s.archived).length}
+              {messages.filter((s) => !s.read && !s.archived).length}
             </span>
           </TabsTrigger>
           <TabsTrigger value="contact">Contact</TabsTrigger>
-          <TabsTrigger value="patient">Patient</TabsTrigger>
           <TabsTrigger value="employer">Employer</TabsTrigger>
           <TabsTrigger value="archived">Archived</TabsTrigger>
         </TabsList>

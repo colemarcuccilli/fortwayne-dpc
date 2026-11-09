@@ -2,13 +2,11 @@
 
 // Scoped store for the research console.
 //
-// Deliberately narrow: it ONLY reads and writes the `prospects` table.
-// The research agent never loads customers, transactions, appointments,
-// or any patient data into its browser — least privilege for an
-// autonomous agent.
-//
-// Falls back to the admin localStorage bucket's prospects array when
-// Supabase isn't configured, so the demo still works on a bare preview.
+// Deliberately narrow: it ONLY reads and writes prospects, and it does so
+// through the scoped server routes at /api/research/prospects (admin OR
+// research session). The research agent's browser holds no database
+// credentials and can reach nothing but prospects — least privilege for
+// an autonomous agent.
 
 import { nanoid } from "nanoid";
 import {
@@ -20,20 +18,7 @@ import {
   useReducer,
 } from "react";
 import { SEED } from "./seed";
-import {
-  SUPABASE_CONFIGURED,
-  getSupabase,
-  prospectFromRow,
-  prospectToRow,
-} from "./supabase";
-import type {
-  AdminState,
-  BenefitsStatus,
-  Prospect,
-  ProspectContact,
-} from "./types";
-
-const STORAGE_KEY = "fwdpc-admin-state-v1";
+import type { BenefitsStatus, Prospect, ProspectContact } from "./types";
 
 export interface NewProspectInput {
   company: string;
@@ -104,35 +89,6 @@ function reducer(state: ResearchState, action: Action): ResearchState {
   }
 }
 
-// -------------------- persistence helpers --------------------
-
-function loadLocalProspects(): Prospect[] {
-  if (typeof window === "undefined") return SEED.prospects;
-  try {
-    const raw = window.localStorage.getItem(STORAGE_KEY);
-    if (!raw) return SEED.prospects;
-    const state = JSON.parse(raw) as AdminState;
-    return (state.prospects ?? []).map((p) => ({ ...p, sources: p.sources ?? [] }));
-  } catch {
-    return SEED.prospects;
-  }
-}
-
-function saveLocalProspect(prospect: Prospect) {
-  if (typeof window === "undefined") return;
-  try {
-    const raw = window.localStorage.getItem(STORAGE_KEY);
-    const state: AdminState = raw ? (JSON.parse(raw) as AdminState) : SEED;
-    const next: AdminState = {
-      ...state,
-      prospects: [prospect, ...(state.prospects ?? [])],
-    };
-    window.localStorage.setItem(STORAGE_KEY, JSON.stringify(next));
-  } catch {
-    /* ignore */
-  }
-}
-
 // -------------------- context --------------------
 
 interface ResearchContextValue {
@@ -152,26 +108,17 @@ export function ResearchProvider({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     let cancelled = false;
     (async () => {
-      if (SUPABASE_CONFIGURED) {
-        try {
-          const supabase = getSupabase();
-          const { data } = await supabase
-            .from("prospects")
-            .select("*")
-            .order("created_at", { ascending: false })
-            .limit(50);
-          if (!cancelled)
-            dispatch({
-              type: "hydrate",
-              prospects: (data ?? []).map(prospectFromRow),
-            });
-          return;
-        } catch (err) {
-          console.error("[research-store] hydrate failed:", err);
-        }
+      try {
+        const res = await fetch("/api/research/prospects", {
+          cache: "no-store",
+        });
+        if (!res.ok) throw new Error(`prospects ${res.status}`);
+        const { prospects } = (await res.json()) as { prospects: Prospect[] };
+        if (!cancelled) dispatch({ type: "hydrate", prospects: prospects ?? [] });
+      } catch (err) {
+        console.error("[research-store] hydrate failed:", err);
+        if (!cancelled) dispatch({ type: "hydrate", prospects: SEED.prospects });
       }
-      if (!cancelled)
-        dispatch({ type: "hydrate", prospects: loadLocalProspects() });
     })();
     return () => {
       cancelled = true;
@@ -180,21 +127,18 @@ export function ResearchProvider({ children }: { children: React.ReactNode }) {
 
   const addProspect = useCallback(async (input: NewProspectInput) => {
     const prospect = buildProspect(input);
-    if (SUPABASE_CONFIGURED) {
-      try {
-        const supabase = getSupabase();
-        const { error } = await supabase
-          .from("prospects")
-          .insert(prospectToRow(prospect));
-        if (error) throw error;
-      } catch (err) {
-        console.error("[research-store] insert failed:", err);
-        saveLocalProspect(prospect);
-      }
-    } else {
-      saveLocalProspect(prospect);
-    }
+    // Optimistic add; the server route persists with the service role.
     dispatch({ type: "add", prospect });
+    try {
+      const res = await fetch("/api/research/prospects", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ prospect }),
+      });
+      if (!res.ok) throw new Error(`insert ${res.status}`);
+    } catch (err) {
+      console.error("[research-store] insert failed:", err);
+    }
     return prospect;
   }, []);
 

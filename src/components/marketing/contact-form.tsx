@@ -6,17 +6,20 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { saveSubmissionLocal } from "@/lib/admin/public-submission";
+import { Turnstile, TURNSTILE_ENABLED } from "@/components/marketing/turnstile";
+import { SUBMIT_ERROR } from "@/lib/submit-error";
 
 interface ContactFormProps {
   heardAboutOptions?: string[];
 }
 
-/**
- * Client-side contact form. For the preview build we just display a
- * confirmation state; hooking into the API / Supabase is a follow-up.
- */
+/** Contact form. Bot-protected by Turnstile and verified server-side. */
 export function ContactForm({ heardAboutOptions }: ContactFormProps) {
   const [submitted, setSubmitted] = useState(false);
+  const [token, setToken] = useState<string | null>(null);
+  const [sending, setSending] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [resetSignal, setResetSignal] = useState(0);
 
   if (submitted) {
     return (
@@ -44,25 +47,39 @@ export function ContactForm({ heardAboutOptions }: ContactFormProps) {
 
   return (
     <form
-      onSubmit={(e) => {
+      onSubmit={async (e) => {
         e.preventDefault();
-        const form = e.currentTarget;
-        const data = new FormData(form);
+        if (sending) return;
+        const data = new FormData(e.currentTarget);
         const firstName = String(data.get("firstName") ?? "");
         const lastName = String(data.get("lastName") ?? "");
         const email = String(data.get("email") ?? "");
         const phone = String(data.get("phone") ?? "");
         const message = String(data.get("message") ?? "");
         const heardAbout = String(data.get("heardAbout") ?? "");
-        saveSubmissionLocal({
-          type: "contact",
-          name: `${firstName} ${lastName}`.trim(),
-          email: email || undefined,
-          phone: phone || undefined,
-          message: message || undefined,
-          meta: heardAbout ? { heardAbout } : undefined,
-        });
-        setSubmitted(true);
+
+        setSending(true);
+        setError(null);
+        const result = await saveSubmissionLocal(
+          {
+            type: "contact",
+            name: `${firstName} ${lastName}`.trim(),
+            email: email || undefined,
+            phone: phone || undefined,
+            message: message || undefined,
+            meta: heardAbout ? { heardAbout } : undefined,
+          },
+          token,
+        );
+        setSending(false);
+
+        if (result.ok) {
+          setSubmitted(true);
+        } else {
+          setError(SUBMIT_ERROR(result.reason));
+          setToken(null);
+          setResetSignal((n) => n + 1); // tokens are single-use
+        }
       }}
       className="space-y-5"
     >
@@ -114,12 +131,24 @@ export function ContactForm({ heardAboutOptions }: ContactFormProps) {
         </div>
       )}
 
+      <Turnstile onVerify={setToken} resetSignal={resetSignal} />
+
+      {error && (
+        <p
+          role="alert"
+          className="rounded-lg border border-destructive/30 bg-destructive/5 px-3 py-2 text-sm text-destructive"
+        >
+          {error}
+        </p>
+      )}
+
       <Button
         type="submit"
         size="lg"
-        className="bg-brand text-brand-foreground hover:bg-brand/90"
+        disabled={sending || (TURNSTILE_ENABLED && !token)}
+        className="bg-brand text-brand-foreground hover:bg-brand/90 disabled:opacity-60"
       >
-        Send message
+        {sending ? "Sending..." : "Send message"}
       </Button>
     </form>
   );

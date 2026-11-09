@@ -29,7 +29,7 @@ export function TextField({
         {label}
         {required && <span className="ml-1 text-brand-accent">*</span>}
       </Label>
-      <Input id={name} name={name} required={required} {...rest} />
+      <Input id={name} name={name} {...rest} />
       {hint && <p className="text-xs text-muted-foreground">{hint}</p>}
     </div>
   );
@@ -57,7 +57,7 @@ export function TextAreaField({
         {label}
         {required && <span className="ml-1 text-brand-accent">*</span>}
       </Label>
-      <Textarea id={name} name={name} required={required} {...rest} />
+      <Textarea id={name} name={name} {...rest} />
     </div>
   );
 }
@@ -91,7 +91,6 @@ export function SelectField({
       <select
         id={name}
         name={name}
-        required={required}
         defaultValue=""
         className="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-xs focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50 focus-visible:outline-none"
         {...rest}
@@ -142,7 +141,6 @@ export function YesNoNaField({
               type="radio"
               name={name}
               value={value}
-              required={required}
               className="sr-only"
             />
             {value}

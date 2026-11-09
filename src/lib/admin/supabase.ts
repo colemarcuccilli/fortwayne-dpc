@@ -1,38 +1,11 @@
-// Browser-side Supabase client used by the admin store and the
-// public-submission helper. Uses the publishable (anon) key — RLS
-// governs table access, and /admin is proxy-gated so the key never
-// leaves an authenticated browser context.
+// Pure row <-> domain mappers, shared between the client stores (types)
+// and the server data layer (supabase-server.ts).
 //
-// Server-side operations that need to bypass RLS should use a service
-// role key via a separate helper (not created yet — none of the
-// current admin flows need it).
-
-import { createBrowserClient } from "@supabase/ssr";
-
-const url = process.env.NEXT_PUBLIC_SUPABASE_URL ?? "";
-const key = process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY ?? "";
-
-/** True when the env vars are set. Falsy → fall back to local seed. */
-export const SUPABASE_CONFIGURED = Boolean(url) && Boolean(key);
-
-let cached: ReturnType<typeof createBrowserClient> | null = null;
-
-export function getSupabase() {
-  if (!SUPABASE_CONFIGURED) {
-    throw new Error(
-      "Supabase is not configured. Set NEXT_PUBLIC_SUPABASE_URL and NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY.",
-    );
-  }
-  if (!cached) {
-    cached = createBrowserClient(url, key);
-  }
-  return cached;
-}
-
-// -------------------- row <-> domain mappers --------------------
-//
-// The DB uses snake_case columns; the app uses camelCase types.
-// Everything here is thin transformation only — no business logic.
+// This module holds NO Supabase client and NO credentials. All database
+// access happens server-side in supabase-server.ts using the service-role
+// key; the browser never receives a database key. The DB uses snake_case
+// columns; the app uses camelCase types. Everything here is thin
+// transformation only — no business logic, no side effects.
 
 import type {
   Appointment,
@@ -103,6 +76,7 @@ export function submissionFromRow(r: Record<string, unknown>): Submission {
     subject: (r.subject as string) ?? undefined,
     message: (r.message as string) ?? undefined,
     meta: (r.meta as Submission["meta"]) ?? undefined,
+    formData: (r.form_data as Submission["formData"]) ?? undefined,
     read: Boolean(r.read),
     archived: Boolean(r.archived),
     createdAt: r.created_at as string,
@@ -118,6 +92,7 @@ export function submissionToRow(s: Submission) {
     subject: s.subject ?? null,
     message: s.message ?? null,
     meta: s.meta ?? null,
+    form_data: s.formData ?? null,
     read: s.read,
     archived: s.archived,
     created_at: s.createdAt,
