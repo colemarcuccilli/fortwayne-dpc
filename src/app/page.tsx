@@ -201,7 +201,7 @@ export default function HomePage() {
           title="Meet Dr. Aluri — the visit is on us."
           body="A free meet-and-greet is the best way to see if direct primary care is a fit for your family. No pressure, no paperwork."
           primaryCta={{ label: "Schedule a Meet & Greet", href: "/contact" }}
-          secondaryCta={{ label: "See Pricing", href: "/membership" }}
+          secondaryCta={{ label: "See Pricing", href: "/fortwaynedirectprimarycare.sigmamd.com/signup/memberships" }}
         />
       </Section>
     </>

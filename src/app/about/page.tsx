@@ -166,7 +166,7 @@ export default function AboutPage() {
         <CtaBanner
           title="Ready to see what care like this actually feels like?"
           primaryCta={{ label: "Schedule a Meet & Greet", href: "/contact" }}
-          secondaryCta={{ label: "See Membership", href: "/membership" }}
+          secondaryCta={{ label: "See Membership", href: "/fortwaynedirectprimarycare.sigmamd.com/signup/memberships" }}
         />
       </Section>
     </>

@@ -4,7 +4,7 @@ import { PRACTICE } from "@/lib/site-data";
 
 const NAV = [
   { label: "About", href: "/about" },
-  { label: "Membership", href: "/membership" },
+  { label: "Membership", href: "/fortwaynedirectprimarycare.sigmamd.com/signup/memberships" },
   { label: "For Business", href: "/employers" },
   { label: "Weight Loss", href: "/weight-loss" },
   { label: "Aesthetics", href: "/aesthetics" },

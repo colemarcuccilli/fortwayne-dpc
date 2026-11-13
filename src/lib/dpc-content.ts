@@ -9,7 +9,7 @@ export const DPC_HOME = {
     title: "Primary care the way it should be.",
     subtitle:
       "Unhurried visits. Direct access to your doctor. One flat monthly fee — no insurance, no copays, no surprise bills.",
-    primaryCta: { label: "Become a Member", href: "/membership" },
+    primaryCta: { label: "Become a Member", href: "/fortwaynedirectprimarycare.sigmamd.com/signup/memberships" },
     secondaryCta: { label: "Schedule a Free Meet & Greet", href: "/contact" },
   },
   pillars: [
