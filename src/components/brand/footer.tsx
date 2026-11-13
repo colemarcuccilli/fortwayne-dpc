@@ -1,6 +1,8 @@
 import Link from "next/link";
 import { Logo } from "@/components/brand/logo";
 import { PRACTICE } from "@/lib/site-data";
+import { withBlogLink } from "@/components/brand/nav-items";
+import { hasReleasedPosts } from "@/lib/blog";
 
 const NAV = [
   { label: "About", href: "/about" },
@@ -12,7 +14,9 @@ const NAV = [
   { label: "Contact", href: "/contact" },
 ];
 
-export function Footer() {
+export async function Footer() {
+  const links = withBlogLink(NAV, await hasReleasedPosts());
+
   return (
     <footer className="mt-24 border-t border-border/60 bg-surface-muted/60">
       <div className="mx-auto grid w-full max-w-6xl gap-12 px-5 py-16 sm:px-8 md:grid-cols-[1.2fr_1fr_1fr_1fr]">
@@ -30,7 +34,7 @@ export function Footer() {
             Site
           </h4>
           <ul className="mt-4 space-y-2.5">
-            {NAV.map((item) => (
+            {links.map((item) => (
               <li key={item.href}>
                 <Link
                   href={item.href}

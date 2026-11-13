@@ -6,6 +6,12 @@ import { PromoBar } from "@/components/marketing/promo-bar";
 import "./globals.css";
 import { Analytics } from "@vercel/analytics/next";
 
+// The header and footer decide whether to show the Blog link by reading the
+// blog files. Revalidating the layout hourly lets that link appear on the
+// first post's release date without a deploy. The lowest revalidate across a
+// route's layouts and page applies to the whole route.
+export const revalidate = 3600;
+
 const geistSans = Geist({
   variable: "--font-geist-sans",
   subsets: ["latin"],

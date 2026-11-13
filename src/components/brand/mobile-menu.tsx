@@ -12,10 +12,10 @@ import {
 } from "@/components/ui/sheet";
 import { LinkButton } from "@/components/ui/link-button";
 import { Logo } from "@/components/brand/logo";
-import { PUBLIC_NAV } from "@/components/brand/nav-items";
+import type { NavItem } from "@/components/brand/nav-items";
 
 /** Hamburger menu shown below the lg breakpoint, where the full nav can't fit. */
-export function MobileMenu() {
+export function MobileMenu({ items }: { items: readonly NavItem[] }) {
   const [open, setOpen] = useState(false);
 
   return (
@@ -34,7 +34,7 @@ export function MobileMenu() {
         </SheetHeader>
         <nav aria-label="Mobile" className="p-3">
           <ul className="space-y-0.5">
-            {PUBLIC_NAV.map((item) => (
+            {items.map((item) => (
               <li key={item.href}>
                 <Link
                   href={item.href}
